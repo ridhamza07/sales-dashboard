@@ -2,71 +2,26 @@
 <style>
   :root {
     color-scheme: light;
-    --surface-1:      #fcfcfb;
-    --surface-2:      #f4f3f0;
-    --page:           #f9f9f7;
+    --surface-1:      #ffffff;
+    --surface-2:      #f2f2ef;
+    --page:           #ffffff;
     --text-primary:   #0b0b0b;
     --text-secondary: #52514e;
-    --text-muted:     #898781;
-    --grid:           #e1e0d9;
+    --text-muted:     #7a7972;
+    --grid:           #e7e6e0;
     --baseline:       #c3c2b7;
-    --border:         rgba(11,11,11,0.10);
+    --border:         rgba(11,11,11,0.14);
+    --seg-stroke:     rgba(11,11,11,0.10);
     --good:           #006300;
-    --series-1: #2a78d6; /* blue    - NRE / billed to date */
-    --series-2: #eb6834; /* orange  - WiseGaN / booked to bill */
-    --series-3: #1baf7a; /* aqua    - WiW1.3 / on orders to book */
-    --series-4: #eda100; /* yellow  - WiW1.1 */
-    --series-5: #e87ba4; /* magenta - Other */
+    --series-1: #1f68c4; /* blue    - NRE / billed to date */
+    --series-2: #d85a20; /* orange  - WiseGaN / booked to bill */
+    --series-3: #0f9c6c; /* aqua    - WiW1.3 / on orders to book */
+    --series-4: #c98500; /* yellow  - WiW1.1 */
+    --series-5: #d5578a; /* magenta - Other */
     --series-6: #008300;
     --series-7: #4a3aa7;
-    --series-8: #e34948;
-    --track:    #e9e8e2;
-  }
-  @media (prefers-color-scheme: dark) {
-    :root:not([data-theme="light"]) {
-      color-scheme: dark;
-      --surface-1:      #1a1a19;
-      --surface-2:      #232322;
-      --page:           #0d0d0d;
-      --text-primary:   #ffffff;
-      --text-secondary: #c3c2b7;
-      --text-muted:     #898781;
-      --grid:           #2c2c2a;
-      --baseline:       #383835;
-      --border:         rgba(255,255,255,0.10);
-      --good:           #0ca30c;
-      --series-1: #3987e5;
-      --series-2: #d95926;
-      --series-3: #199e70;
-      --series-4: #c98500;
-      --series-5: #d55181;
-      --series-6: #008300;
-      --series-7: #9085e9;
-      --series-8: #e66767;
-      --track:    #2a2a28;
-    }
-  }
-  :root[data-theme="dark"] {
-    color-scheme: dark;
-    --surface-1:      #1a1a19;
-    --surface-2:      #232322;
-    --page:           #0d0d0d;
-    --text-primary:   #ffffff;
-    --text-secondary: #c3c2b7;
-    --text-muted:     #898781;
-    --grid:           #2c2c2a;
-    --baseline:       #383835;
-    --border:         rgba(255,255,255,0.10);
-    --good:           #0ca30c;
-    --series-1: #3987e5;
-    --series-2: #d95926;
-    --series-3: #199e70;
-    --series-4: #c98500;
-    --series-5: #d55181;
-    --series-6: #008300;
-    --series-7: #9085e9;
-    --series-8: #e66767;
-    --track:    #2a2a28;
+    --series-8: #d33231;
+    --track:    #ececea;
   }
 
   * { box-sizing: border-box; }
@@ -121,18 +76,6 @@
   .kpi .value .usd { font-size: 11px; font-weight: 500; color: var(--text-muted); margin-left: 5px; }
   .kpi .delta { font-size: 11px; margin-top: 3px; color: var(--text-secondary); }
 
-  /* ---- progress bars ---- */
-  .progress-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
-  .progress-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 6px; }
-  .progress-head .t { font-size: 11.5px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: .04em; }
-  .progress-head .pct { font-size: 15px; font-weight: 700; }
-  .progress-track {
-    height: 10px; border-radius: 5px; background: var(--track); overflow: hidden;
-    display: flex; position: relative;
-  }
-  .progress-fill { height: 100%; border-radius: 5px 0 0 5px; }
-  .progress-foot { display: flex; justify-content: space-between; font-size: 10.5px; color: var(--text-muted); margin-top: 5px; }
-
   /* ---- charts row ---- */
   .chart-row { display: grid; grid-template-columns: 1.2fr 0.95fr 1fr; gap: 10px; margin-bottom: 10px; }
   .bar-chart-svg { width: 100%; height: 190px; overflow: visible; }
@@ -140,7 +83,7 @@
   .bar-axis-label { font-size: 10px; fill: var(--text-muted); }
   .legend { display: flex; flex-wrap: wrap; gap: 10px 16px; margin-top: 10px; }
   .legend-item { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--text-secondary); }
-  .swatch { width: 9px; height: 9px; border-radius: 2px; flex: none; }
+  .swatch { width: 9px; height: 9px; border-radius: 2px; flex: none; box-shadow: inset 0 0 0 1px var(--seg-stroke); }
 
   .donut-wrap { display: flex; gap: 12px; align-items: center; }
   .donut-svg { width: 150px; height: 150px; flex: none; }
@@ -205,7 +148,7 @@
 
   @media (max-width: 860px) {
     .kpi-row { grid-template-columns: repeat(2, 1fr); }
-    .progress-row, .chart-row, .deals-row { grid-template-columns: 1fr; }
+    .chart-row, .deals-row { grid-template-columns: 1fr; }
   }
   @media print {
     body { padding: 0; background: #fff; }
@@ -231,7 +174,6 @@
   </header>
 
   <div class="kpi-row" id="kpi-row"></div>
-  <div class="progress-row" id="progress-row"></div>
 
   <div class="chart-row">
     <div class="panel">
@@ -440,20 +382,6 @@
     }).join('');
   }
 
-  function renderProgress(d){
-    var el = document.getElementById('progress-row');
-    var bookPct = d.booking.projectedTotalEUR ? (d.booking.bookedToDateEUR / d.booking.projectedTotalEUR * 100) : 0;
-    var billTarget = sum(d.billingQuarterly.totalProjected);
-    var billPct = billTarget ? (d.billingTotals2026.billedToDate / billTarget * 100) : 0;
-    function bar(title, pct, doneVal, targetVal, color){
-      return '<div class="panel"><div class="progress-head"><span class="t">'+title+'</span><span class="pct" style="color:'+color+'">'+fmt(pct,1)+'%</span></div>'+
-        '<div class="progress-track"><div class="progress-fill" style="width:'+Math.min(pct,100)+'%;background:'+color+'"></div></div>'+
-        '<div class="progress-foot"><span>&euro;'+fmt(doneVal,0)+'k done</span><span>&euro;'+fmt(targetVal,0)+'k target</span></div></div>';
-    }
-    el.innerHTML = bar('Booking progress toward 2026 target', bookPct, d.booking.bookedToDateEUR, d.booking.projectedTotalEUR, seriesColor(0)) +
-                   bar('Billing progress toward 2026 target', billPct, d.billingTotals2026.billedToDate, billTarget, seriesColor(2));
-  }
-
   function renderBarChart(d){
     var svg = document.getElementById('bar-chart');
     var legend = document.getElementById('bar-legend');
@@ -504,7 +432,7 @@
           '<path data-tip="'+seg.label+' &middot; '+qtr+' &middot; &euro;'+fmt(seg.v,1)+'k" class="hoverseg" '+
           'd="M '+x0+' '+(seg.y+seg.h)+' L '+x0+' '+(seg.y+rTop)+' Q '+x0+' '+seg.y+' '+(x0+rTop)+' '+seg.y+' '+
           'L '+(x0+barW-rTop)+' '+seg.y+' Q '+(x0+barW)+' '+seg.y+' '+(x0+barW)+' '+(seg.y+rTop)+' '+
-          'L '+(x0+barW)+' '+(seg.y+seg.h)+' Z" fill="'+seg.color+'"/>'
+          'L '+(x0+barW)+' '+(seg.y+seg.h)+' Z" fill="'+seg.color+'" stroke="var(--seg-stroke)" stroke-width="1"/>'
         );
       });
       var total = vals[0]+vals[1]+vals[2];
@@ -575,7 +503,7 @@
       var path = arcPath(cx, cy, rOuter, rInner, a, a1);
       var color = seriesColor(i);
       if (path){
-        parts.push('<path class="hoverseg" data-tip="'+item.name+' &middot; &euro;'+fmt(item.value,1)+'k &middot; '+fmt(frac*100,1)+'%" d="'+path+'" fill="'+color+'"/>');
+        parts.push('<path class="hoverseg" data-tip="'+item.name+' &middot; &euro;'+fmt(item.value,1)+'k &middot; '+fmt(frac*100,1)+'%" d="'+path+'" fill="'+color+'" stroke="var(--seg-stroke)" stroke-width="1"/>');
         if (frac > 0.08){
           var mid = a + (a1-a)/2;
           var lp = polar(cx,cy,(rOuter+rInner)/2, mid);
@@ -672,7 +600,6 @@
     document.getElementById('fx-pill').textContent = 'EUR/USD ' + (d.fxRate || 1.17);
     document.getElementById('generated-label').textContent = 'Rendered ' + new Date().toLocaleString();
     renderKPIs(d);
-    renderProgress(d);
     renderBarChart(d);
     renderDonut(d);
     renderConfidence(d);
