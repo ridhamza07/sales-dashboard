@@ -1,0 +1,669 @@
+<title>Booking & Billing Dashboard 2026</title>
+<style>
+  :root {
+    color-scheme: light;
+    --surface-1:      #fcfcfb;
+    --surface-2:      #f4f3f0;
+    --page:           #f9f9f7;
+    --text-primary:   #0b0b0b;
+    --text-secondary: #52514e;
+    --text-muted:     #898781;
+    --grid:           #e1e0d9;
+    --baseline:       #c3c2b7;
+    --border:         rgba(11,11,11,0.10);
+    --good:           #006300;
+    --series-1: #2a78d6; /* blue    - NRE / billed to date */
+    --series-2: #eb6834; /* orange  - WiseGaN / booked to bill */
+    --series-3: #1baf7a; /* aqua    - WiW1.3 / on orders to book */
+    --series-4: #eda100; /* yellow  - WiW1.1 */
+    --series-5: #e87ba4; /* magenta - Other */
+    --series-6: #008300;
+    --series-7: #4a3aa7;
+    --series-8: #e34948;
+    --track:    #e9e8e2;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      color-scheme: dark;
+      --surface-1:      #1a1a19;
+      --surface-2:      #232322;
+      --page:           #0d0d0d;
+      --text-primary:   #ffffff;
+      --text-secondary: #c3c2b7;
+      --text-muted:     #898781;
+      --grid:           #2c2c2a;
+      --baseline:       #383835;
+      --border:         rgba(255,255,255,0.10);
+      --good:           #0ca30c;
+      --series-1: #3987e5;
+      --series-2: #d95926;
+      --series-3: #199e70;
+      --series-4: #c98500;
+      --series-5: #d55181;
+      --series-6: #008300;
+      --series-7: #9085e9;
+      --series-8: #e66767;
+      --track:    #2a2a28;
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --surface-1:      #1a1a19;
+    --surface-2:      #232322;
+    --page:           #0d0d0d;
+    --text-primary:   #ffffff;
+    --text-secondary: #c3c2b7;
+    --text-muted:     #898781;
+    --grid:           #2c2c2a;
+    --baseline:       #383835;
+    --border:         rgba(255,255,255,0.10);
+    --good:           #0ca30c;
+    --series-1: #3987e5;
+    --series-2: #d95926;
+    --series-3: #199e70;
+    --series-4: #c98500;
+    --series-5: #d55181;
+    --series-6: #008300;
+    --series-7: #9085e9;
+    --series-8: #e66767;
+    --track:    #2a2a28;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    background: var(--page);
+    color: var(--text-primary);
+    font: 13px/1.4 system-ui, -apple-system, "Segoe UI", sans-serif;
+    padding: 16px;
+  }
+  .wrap { max-width: 1280px; margin: 0 auto; }
+
+  /* ---- header ---- */
+  header {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 12px; margin-bottom: 14px; flex-wrap: wrap;
+  }
+  header h1 { font-size: 17px; font-weight: 700; margin: 0; }
+  header .sub { color: var(--text-secondary); font-size: 11.5px; margin-top: 2px; }
+  .header-right { display: flex; align-items: center; gap: 10px; }
+  .fx-pill {
+    font-size: 11.5px; color: var(--text-secondary);
+    background: var(--surface-2); border: 1px solid var(--border);
+    padding: 4px 9px; border-radius: 20px; white-space: nowrap;
+  }
+  .btn {
+    font: inherit; font-size: 12px; font-weight: 600; cursor: pointer;
+    background: var(--series-1); color: #fff; border: none;
+    padding: 8px 14px; border-radius: 7px; display: inline-flex;
+    align-items: center; gap: 6px; white-space: nowrap;
+  }
+  .btn:hover { filter: brightness(1.08); }
+  .btn svg { width: 14px; height: 14px; }
+  .file-status { font-size: 11px; color: var(--text-muted); white-space: nowrap; }
+
+  /* ---- panels ---- */
+  .panel {
+    background: var(--surface-1); border: 1px solid var(--border);
+    border-radius: 10px; padding: 12px 14px;
+  }
+  .panel h2 {
+    font-size: 11.5px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: .04em; color: var(--text-secondary); margin: 0 0 10px;
+  }
+
+  /* ---- KPI row ---- */
+  .kpi-row {
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    gap: 10px; margin-bottom: 10px;
+  }
+  .kpi .label { font-size: 11px; color: var(--text-secondary); margin-bottom: 4px; }
+  .kpi .value { font-size: 21px; font-weight: 700; letter-spacing: -0.01em; }
+  .kpi .value .usd { font-size: 11px; font-weight: 500; color: var(--text-muted); margin-left: 5px; }
+  .kpi .delta { font-size: 11px; margin-top: 3px; color: var(--text-secondary); }
+
+  /* ---- progress bars ---- */
+  .progress-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+  .progress-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 6px; }
+  .progress-head .t { font-size: 11.5px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: .04em; }
+  .progress-head .pct { font-size: 15px; font-weight: 700; }
+  .progress-track {
+    height: 10px; border-radius: 5px; background: var(--track); overflow: hidden;
+    display: flex; position: relative;
+  }
+  .progress-fill { height: 100%; border-radius: 5px 0 0 5px; }
+  .progress-foot { display: flex; justify-content: space-between; font-size: 10.5px; color: var(--text-muted); margin-top: 5px; }
+
+  /* ---- charts row ---- */
+  .chart-row { display: grid; grid-template-columns: 1.35fr 1fr; gap: 10px; margin-bottom: 10px; }
+  .bar-chart-svg { width: 100%; height: 190px; overflow: visible; }
+  .bar-total-label { font-size: 11px; font-weight: 700; fill: var(--text-primary); }
+  .bar-axis-label { font-size: 10px; fill: var(--text-muted); }
+  .legend { display: flex; flex-wrap: wrap; gap: 10px 16px; margin-top: 10px; }
+  .legend-item { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--text-secondary); }
+  .swatch { width: 9px; height: 9px; border-radius: 2px; flex: none; }
+
+  .donut-wrap { display: flex; gap: 12px; align-items: center; }
+  .donut-svg { width: 150px; height: 150px; flex: none; }
+  .donut-center-value { font-size: 15px; font-weight: 700; fill: var(--text-primary); }
+  .donut-center-label { font-size: 9px; fill: var(--text-muted); }
+  .donut-list { flex: 1; min-width: 0; }
+  .donut-list-row {
+    display: flex; align-items: center; gap: 6px; font-size: 11px;
+    padding: 3px 0; border-bottom: 1px solid var(--grid);
+  }
+  .donut-list-row:last-child { border-bottom: none; }
+  .donut-list-row .name { flex: 1; color: var(--text-secondary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .donut-list-row .val { font-weight: 700; font-variant-numeric: tabular-nums; }
+  .donut-list-row .pct { color: var(--text-muted); width: 34px; text-align: right; font-variant-numeric: tabular-nums; }
+
+  /* ---- deals tables ---- */
+  .deals-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  table { width: 100%; border-collapse: collapse; font-size: 11.5px; }
+  th {
+    text-align: left; font-size: 10px; text-transform: uppercase; letter-spacing: .03em;
+    color: var(--text-muted); font-weight: 600; padding: 4px 6px;
+    border-bottom: 1px solid var(--baseline);
+  }
+  th.num, td.num { text-align: right; font-variant-numeric: tabular-nums; }
+  td { padding: 4.5px 6px; border-bottom: 1px solid var(--grid); color: var(--text-secondary); }
+  tr:last-child td { border-bottom: none; }
+  td.name { color: var(--text-primary); font-weight: 600; max-width: 130px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  td.val { color: var(--text-primary); font-weight: 700; }
+  .tag {
+    display: inline-block; font-size: 9.5px; font-weight: 700; padding: 1.5px 6px;
+    border-radius: 10px; color: #fff; white-space: nowrap;
+  }
+  .table-scroll { max-height: 340px; overflow-y: auto; }
+  tfoot td { border-top: 1px solid var(--baseline); border-bottom: none; font-weight: 700; color: var(--text-primary); padding-top: 6px; }
+
+  footer {
+    margin-top: 12px; display: flex; justify-content: space-between; align-items: center;
+    font-size: 10.5px; color: var(--text-muted); flex-wrap: wrap; gap: 6px;
+  }
+
+  /* tooltip */
+  #tooltip {
+    position: fixed; pointer-events: none; z-index: 50; display: none;
+    background: var(--surface-1); border: 1px solid var(--border); border-radius: 6px;
+    padding: 6px 9px; font-size: 11px; box-shadow: 0 4px 14px rgba(0,0,0,.15);
+    color: var(--text-primary); max-width: 220px;
+  }
+  #tooltip .tt-title { font-weight: 700; margin-bottom: 2px; }
+  #tooltip .tt-row { display: flex; justify-content: space-between; gap: 10px; color: var(--text-secondary); }
+
+  @media (max-width: 860px) {
+    .kpi-row { grid-template-columns: repeat(2, 1fr); }
+    .progress-row, .chart-row, .deals-row { grid-template-columns: 1fr; }
+  }
+  @media print {
+    body { padding: 0; background: #fff; }
+    .btn, #upload-input, .file-status { display: none !important; }
+  }
+</style>
+
+<div class="wrap">
+  <header>
+    <div>
+      <h1>Booking &amp; Billing Dashboard — FY2026</h1>
+      <div class="sub" id="data-source-label">Sample data · booking_and_billing_target_2026_v2.xlsx</div>
+    </div>
+    <div class="header-right">
+      <span class="fx-pill" id="fx-pill">EUR/USD 1.17</span>
+      <span class="file-status" id="file-status"></span>
+      <input type="file" id="upload-input" accept=".xlsx,.xls" style="display:none">
+      <button class="btn" id="upload-btn" title="Load an updated local Excel file using the same template layout">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        Load Excel File
+      </button>
+    </div>
+  </header>
+
+  <div class="kpi-row" id="kpi-row"></div>
+  <div class="progress-row" id="progress-row"></div>
+
+  <div class="chart-row">
+    <div class="panel">
+      <h2>Quarterly Billing (k€) — Billed vs. Pipeline</h2>
+      <svg class="bar-chart-svg" id="bar-chart" viewBox="0 0 560 190"></svg>
+      <div class="legend" id="bar-legend"></div>
+    </div>
+    <div class="panel">
+      <h2>2026 Booking Mix by Product (k€)</h2>
+      <div class="donut-wrap">
+        <svg class="donut-svg" id="donut-chart" viewBox="0 0 150 150"></svg>
+        <div class="donut-list" id="donut-list"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="deals-row">
+    <div class="panel">
+      <h2 id="booked-title">Booked Deals</h2>
+      <div class="table-scroll">
+        <table id="booked-table">
+          <thead><tr><th>Deal</th><th>Product</th><th class="num">k€</th><th class="num">Billed</th><th class="num">To Bill '26</th></tr></thead>
+          <tbody></tbody>
+          <tfoot></tfoot>
+        </table>
+      </div>
+    </div>
+    <div class="panel">
+      <h2 id="pipeline-title">Pipeline — To Be Booked</h2>
+      <div class="table-scroll">
+        <table id="pipeline-table">
+          <thead><tr><th>Deal</th><th>Product</th><th class="num">k€</th><th class="num">To Bill '26</th><th class="num">To Bill '27</th></tr></thead>
+          <tbody></tbody>
+          <tfoot></tfoot>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <span>Upload expects the same "2026 cash in" template layout (summary block rows 1-10, "booked:" and "to be booked:" deal lists). Figures in k€ unless noted.</span>
+    <span id="generated-label"></span>
+  </footer>
+</div>
+
+<div id="tooltip"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script>
+(function(){
+  "use strict";
+
+  var SERIES = ['--series-1','--series-2','--series-3','--series-4','--series-5','--series-6','--series-7','--series-8'];
+  function cssVar(name){ return getComputedStyle(document.documentElement).getPropertyValue(name).trim(); }
+  function seriesColor(i){ return cssVar(SERIES[i % SERIES.length]); }
+
+  function fmt(n, d){
+    if (n === null || n === undefined || isNaN(n)) return '—';
+    d = d === undefined ? 1 : d;
+    return n.toLocaleString('en-US', { minimumFractionDigits: d, maximumFractionDigits: d });
+  }
+  function sum(arr){ return arr.reduce(function(a,b){ return a + (b || 0); }, 0); }
+
+  /* ---------------------------------------------------------------
+     DEFAULT DATA — extracted from booking_and_billing_target_2026_v2.xlsx
+     --------------------------------------------------------------- */
+  var DEFAULT_DATA = {
+    sourceLabel: 'Sample data · booking_and_billing_target_2026_v2.xlsx',
+    fxRate: 1.17,
+    booking: {
+      bookedToDateUSD: 453.648, bookedToDateEUR: 387.73333333333335,
+      toBookUSD: 704.95, toBookEUR: 602.5213675213676,
+      projectedTotalUSD: 1158.598, projectedTotalEUR: 990.2547008547009
+    },
+    billingQuarterly: {
+      quarters: ['Q1','Q2','Q3','Q4'],
+      billedToDate:      [91.9, 3, 153.46581196581195, 0],
+      bookedToBill:       [0, 0, 14.529914529914532, 124.83760683760684],
+      projectedOnOrders:  [0, 0, 23.931623931623932, 171.3461538461538],
+      totalProjected:     [91.9, 3, 191.9273504273504, 296.1837606837606]
+    },
+    billingTotals2026: {
+      billedToDate: 248.36581196581196,
+      bookedToBill: 139.36752136752136,
+      onOrdersToBook: 195.27777777777774
+    },
+    bookedDeals: [
+      { name:'TeamWise (NRE)', product:'NRE', usd:10, eur:8.547008547008547, billedByQ:[null,null,1.7094017094017095,null], toBill2026ByQ:[null,null,null,6.837606837606837] },
+      { name:'G.Cartier (NRE)', product:'NRE', usd:345.15, eur:295, billedByQ:[88.5,null,88.5,null], toBill2026ByQ:[null,null,null,118] },
+      { name:'Teledyne (GaN)', product:'WiseGaN', usd:12, eur:10.256410256410257, billedByQ:[null,null,10.256410256410257,null], toBill2026ByQ:[null,null,null,null] },
+      { name:'Savoy (Gazelle)', product:'NRE', usd:3.51, eur:3, billedByQ:[null,3,null,null], toBill2026ByQ:[null,null,null,null] },
+      { name:'Digikey (GaN 2025 PO)', product:'WiseGaN', usd:3.978, eur:3.4, billedByQ:[3.4,null,null,null], toBill2026ByQ:[null,null,null,null] },
+      { name:'Alter (tester)', product:'other', usd:62.01, eur:53, billedByQ:[null,null,53,null], toBill2026ByQ:[null,null,null,null] },
+      { name:'Teledyne (GaN EVK)', product:'WiseGaN', usd:17, eur:14.529914529914532, billedByQ:[null,null,null,null], toBill2026ByQ:[null,null,14.529914529914532,null] }
+    ],
+    toBeBookedDeals: [
+      { name:'ZoneCharge (NRE)', product:'NRE', usd:26, eur:22.222222222222225, toBill2026:11.111111111111112, toBill2027:null, details:'7 kW PFC integration with Wireless stage' },
+      { name:'EDAC (NRE)', product:'NRE', usd:100, eur:85.47008547008548, toBill2026:34.188034188034194, toBill2027:null, details:'CRPS 3.2 kW' },
+      { name:'Teledyne (GaN MoQ)', product:'WiseGaN', usd:200, eur:170.94017094017096, toBill2026:170.94017094017096, toBill2027:null, details:'MoQ 5k/part' },
+      { name:'eDom (WI73100)', product:'WiseGaN', usd:13.4, eur:11.452991452991453, toBill2026:0, toBill2027:null, details:'73100 order' },
+      { name:'KEC (WI73100)', product:'WiseGaN', usd:3.35, eur:2.8632478632478633, toBill2026:0, toBill2027:null, details:'73100 order' },
+      { name:'Teledyne (NRE packg)', product:'NRE', usd:240, eur:205.12820512820514, toBill2026:143.5897435897436, toBill2027:null, details:'7 mOhm packaging. NRE. Copper clip' },
+      { name:'Digikey (WI73100)', product:'WiseGaN', usd:2.25, eur:1.9230769230769231, toBill2026:0, toBill2027:null, details:'73100 order' },
+      { name:'G.Cartier (WiW MoQ)', product:'WiW1.3', usd:40.95, eur:35, toBill2026:17.5, toBill2027:null, details:'first order for parts' },
+      { name:'TVS Motor (NRE)', product:'NRE', usd:40, eur:34.18803418803419, toBill2026:17.094017094017094, toBill2027:null, details:'NRE for off board charger' },
+      { name:'Teamwise (WiW MoQ)', product:'WiW1.1', usd:9, eur:7.6923076923076925, toBill2026:0, toBill2027:null, details:'MoQ order' },
+      { name:'Onsemi (NRE)', product:'NRE', usd:30, eur:25.641025641025642, toBill2026:12.820512820512821, toBill2027:null, details:'7 kW - 10 protos + NRE (off board charging - eBikes)' }
+    ]
+  };
+
+  /* ---------------------------------------------------------------
+     XLSX EXTRACTION (mirrors DEFAULT_DATA structure) for uploaded files
+     --------------------------------------------------------------- */
+  function extractFromWorkbook(wb, filename){
+    var sheetName = wb.SheetNames.find(function(n){ return /cash\s*in/i.test(n); }) || wb.SheetNames[0];
+    var ws = wb.Sheets[sheetName];
+    var rows = XLSX.utils.sheet_to_json(ws, { header: 1, raw: true, defval: null });
+    function g(r, c){ var row = rows[r-1]; if (!row) return null; var v = row[c-1]; return (v === undefined) ? null : v; }
+    function num(v){ return (typeof v === 'number') ? v : (v === null || v === '' ? null : Number(v)); }
+    function row4(r, cStart){ return [num(g(r,cStart)), num(g(r,cStart+1)), num(g(r,cStart+2)), num(g(r,cStart+3))]; }
+
+    var data = {
+      sourceLabel: 'Loaded file · ' + (filename || 'local .xlsx'),
+      fxRate: num(g(1,2)) || 1.17,
+      booking: {
+        bookedToDateUSD: num(g(3,3)), bookedToDateEUR: num(g(3,4)),
+        toBookUSD: num(g(5,3)), toBookEUR: num(g(5,4)),
+        projectedTotalUSD: num(g(7,3)), projectedTotalEUR: num(g(7,4))
+      },
+      billingQuarterly: {
+        quarters: ['Q1','Q2','Q3','Q4'],
+        billedToDate: row4(3,7), bookedToBill: row4(4,7),
+        projectedOnOrders: row4(5,7), totalProjected: row4(6,7)
+      },
+      billingTotals2026: {
+        billedToDate: num(g(8,10)), bookedToBill: num(g(9,10)), onOrdersToBook: num(g(10,10))
+      },
+      bookedDeals: [], toBeBookedDeals: []
+    };
+
+    function findHeaderRow(label){
+      for (var r = 1; r <= rows.length; r++){
+        var v = g(r,1);
+        if (v && String(v).trim().toLowerCase() === label) return r;
+      }
+      return -1;
+    }
+    var bookedHdr = findHeaderRow('booked:');
+    if (bookedHdr > 0){
+      var r = bookedHdr + 1;
+      while (g(r,1)){
+        data.bookedDeals.push({
+          name: String(g(r,1)), product: g(r,2) || 'other',
+          usd: num(g(r,3)), eur: num(g(r,4)),
+          billedByQ: row4(r,5), toBill2026ByQ: row4(r,9)
+        });
+        r++;
+      }
+    }
+    var tobookHdr = findHeaderRow('to be booked:');
+    if (tobookHdr > 0){
+      var r2 = tobookHdr + 1;
+      while (g(r2,1)){
+        data.toBeBookedDeals.push({
+          name: String(g(r2,1)), product: g(r2,2) || 'other',
+          usd: num(g(r2,3)), eur: num(g(r2,4)),
+          toBill2026: num(g(r2,9)), toBill2027: num(g(r2,21)),
+          details: g(r2,10) || ''
+        });
+        r2++;
+      }
+    }
+    return data;
+  }
+
+  /* ---------------------------------------------------------------
+     RENDERING
+     --------------------------------------------------------------- */
+  var tooltip = document.getElementById('tooltip');
+  function showTip(evt, html){
+    tooltip.innerHTML = html;
+    tooltip.style.display = 'block';
+    var x = evt.clientX + 14, y = evt.clientY + 14;
+    var tw = tooltip.offsetWidth, th = tooltip.offsetHeight;
+    if (x + tw > window.innerWidth - 8) x = evt.clientX - tw - 14;
+    if (y + th > window.innerHeight - 8) y = evt.clientY - th - 14;
+    tooltip.style.left = x + 'px'; tooltip.style.top = y + 'px';
+  }
+  function hideTip(){ tooltip.style.display = 'none'; }
+
+  function renderKPIs(d){
+    var el = document.getElementById('kpi-row');
+    var tiles = [
+      { label: 'Booking to Date', eur: d.booking.bookedToDateEUR, usd: d.booking.bookedToDateUSD },
+      { label: '2026 Booking Target (projected)', eur: d.booking.projectedTotalEUR, usd: d.booking.projectedTotalUSD },
+      { label: 'Billing to Date (2026)', eur: d.billingTotals2026.billedToDate, usd: d.billingTotals2026.billedToDate * (d.fxRate||1.17) },
+      { label: '2026 Billing Target (projected)', eur: sum(d.billingQuarterly.totalProjected), usd: sum(d.billingQuarterly.totalProjected) * (d.fxRate||1.17) }
+    ];
+    el.innerHTML = tiles.map(function(t){
+      return '<div class="panel kpi"><div class="label">'+t.label+'</div>'+
+        '<div class="value">&euro;'+fmt(t.eur,0)+'k<span class="usd">$'+fmt(t.usd,0)+'k</span></div></div>';
+    }).join('');
+  }
+
+  function renderProgress(d){
+    var el = document.getElementById('progress-row');
+    var bookPct = d.booking.projectedTotalEUR ? (d.booking.bookedToDateEUR / d.booking.projectedTotalEUR * 100) : 0;
+    var billTarget = sum(d.billingQuarterly.totalProjected);
+    var billPct = billTarget ? (d.billingTotals2026.billedToDate / billTarget * 100) : 0;
+    function bar(title, pct, doneVal, targetVal, color){
+      return '<div class="panel"><div class="progress-head"><span class="t">'+title+'</span><span class="pct" style="color:'+color+'">'+fmt(pct,1)+'%</span></div>'+
+        '<div class="progress-track"><div class="progress-fill" style="width:'+Math.min(pct,100)+'%;background:'+color+'"></div></div>'+
+        '<div class="progress-foot"><span>&euro;'+fmt(doneVal,0)+'k done</span><span>&euro;'+fmt(targetVal,0)+'k target</span></div></div>';
+    }
+    el.innerHTML = bar('Booking progress toward 2026 target', bookPct, d.booking.bookedToDateEUR, d.booking.projectedTotalEUR, seriesColor(0)) +
+                   bar('Billing progress toward 2026 target', billPct, d.billingTotals2026.billedToDate, billTarget, seriesColor(2));
+  }
+
+  function renderBarChart(d){
+    var svg = document.getElementById('bar-chart');
+    var legend = document.getElementById('bar-legend');
+    var W = 560, H = 190, padL = 34, padB = 20, padT = 26;
+    var plotW = W - padL - 10, plotH = H - padB - padT;
+    var q = d.billingQuarterly;
+    var maxTotal = Math.max.apply(null, q.totalProjected.map(function(v,i){
+      return q.billedToDate[i] + q.bookedToBill[i] + q.projectedOnOrders[i];
+    }).concat([1]));
+    var niceMax = Math.ceil(maxTotal / 50) * 50 || 50;
+    var bw = plotW / q.quarters.length;
+    var barW = Math.min(56, bw * 0.5);
+    var gap = 2;
+    var colors = [seriesColor(0), seriesColor(1), seriesColor(2)];
+    var seriesKeys = ['billedToDate','bookedToBill','projectedOnOrders'];
+    var seriesLbl = ['Billed to date', 'Booked, to bill', 'On orders to book'];
+
+    var svgParts = [];
+    // gridlines
+    var ticks = 4;
+    for (var t = 0; t <= ticks; t++){
+      var val = niceMax / ticks * t;
+      var y = padT + plotH - (val / niceMax) * plotH;
+      svgParts.push('<line x1="'+padL+'" y1="'+y+'" x2="'+(padL+plotW)+'" y2="'+y+'" stroke="var(--grid)" stroke-width="1"/>');
+      svgParts.push('<text x="'+(padL-6)+'" y="'+(y+3)+'" text-anchor="end" class="bar-axis-label">'+Math.round(val)+'</text>');
+    }
+
+    q.quarters.forEach(function(qtr, i){
+      var cx = padL + bw * i + bw/2;
+      var x0 = cx - barW/2;
+      var vals = [q.billedToDate[i], q.bookedToBill[i], q.projectedOnOrders[i]];
+      var yCursor = padT + plotH;
+      var segTops = [];
+      vals.forEach(function(v, si){
+        var segH = (v / niceMax) * plotH;
+        if (segH < 0.5 && v > 0) segH = 0.5;
+        var y1 = yCursor - segH;
+        segTops.push({y: y1, h: segH, v: v, color: colors[si], label: seriesLbl[si]});
+        yCursor = y1 - (v > 0 ? gap : 0);
+      });
+      // rounded top on the last non-zero segment
+      var lastIdx = -1;
+      for (var k = segTops.length - 1; k >= 0; k--){ if (segTops[k].v > 0){ lastIdx = k; break; } }
+      segTops.forEach(function(seg, si){
+        if (seg.v <= 0) return;
+        var rTop = (si === lastIdx) ? 4 : 0;
+        svgParts.push(
+          '<path data-tip="'+seg.label+' &middot; '+qtr+' &middot; &euro;'+fmt(seg.v,1)+'k" class="hoverseg" '+
+          'd="M '+x0+' '+(seg.y+seg.h)+' L '+x0+' '+(seg.y+rTop)+' Q '+x0+' '+seg.y+' '+(x0+rTop)+' '+seg.y+' '+
+          'L '+(x0+barW-rTop)+' '+seg.y+' Q '+(x0+barW)+' '+seg.y+' '+(x0+barW)+' '+(seg.y+rTop)+' '+
+          'L '+(x0+barW)+' '+(seg.y+seg.h)+' Z" fill="'+seg.color+'"/>'
+        );
+      });
+      var total = vals[0]+vals[1]+vals[2];
+      var topY = segTops.length ? segTops[segTops.length-1].y : (padT+plotH);
+      // topY should be min y among segs
+      var minY = padT + plotH;
+      segTops.forEach(function(s){ if (s.v > 0 && s.y < minY) minY = s.y; });
+      svgParts.push('<text x="'+cx+'" y="'+(minY-6)+'" text-anchor="middle" class="bar-total-label">'+fmt(total,0)+'</text>');
+      svgParts.push('<text x="'+cx+'" y="'+(padT+plotH+14)+'" text-anchor="middle" class="bar-axis-label">'+qtr+'</text>');
+    });
+    svgParts.push('<line x1="'+padL+'" y1="'+(padT+plotH)+'" x2="'+(padL+plotW)+'" y2="'+(padT+plotH)+'" stroke="var(--baseline)" stroke-width="1"/>');
+
+    svg.innerHTML = svgParts.join('');
+    svg.querySelectorAll('.hoverseg').forEach(function(node){
+      node.addEventListener('mousemove', function(e){
+        showTip(e, '<div class="tt-title">'+node.getAttribute('data-tip')+'</div>');
+      });
+      node.addEventListener('mouseleave', hideTip);
+    });
+
+    legend.innerHTML = seriesLbl.map(function(lbl, i){
+      return '<span class="legend-item"><span class="swatch" style="background:'+colors[i]+'"></span>'+lbl+'</span>';
+    }).join('');
+  }
+
+  function productTotals(d){
+    var map = {};
+    var order = [];
+    function add(product, eur){
+      var key = product || 'other';
+      if (!(key in map)){ map[key] = 0; order.push(key); }
+      map[key] += (eur || 0);
+    }
+    d.bookedDeals.forEach(function(x){ add(x.product, x.eur); });
+    d.toBeBookedDeals.forEach(function(x){ add(x.product, x.eur); });
+    return order.map(function(k){ return { name: k, value: map[k] }; }).sort(function(a,b){ return b.value - a.value; });
+  }
+
+  function renderDonut(d){
+    var svg = document.getElementById('donut-chart');
+    var list = document.getElementById('donut-list');
+    var items = productTotals(d);
+    var total = sum(items.map(function(i){ return i.value; }));
+    var cx = 75, cy = 75, rOuter = 66, rInner = 42;
+    var startAngle = -90;
+    var parts = [];
+
+    function polar(cx, cy, r, angleDeg){
+      var a = (angleDeg - 90) * Math.PI / 180;
+      return [cx + r * Math.cos(a), cy + r * Math.sin(a)];
+    }
+    function arcPath(cx, cy, rO, rI, a0, a1){
+      var gapDeg = total > 0 ? Math.min(2.2, (a1-a0)*0.08) : 0;
+      a0 += gapDeg/2; a1 -= gapDeg/2;
+      if (a1 <= a0) return null;
+      var large = (a1 - a0) > 180 ? 1 : 0;
+      var p0o = polar(cx,cy,rO,a0), p1o = polar(cx,cy,rO,a1);
+      var p0i = polar(cx,cy,rI,a1), p1i = polar(cx,cy,rI,a0);
+      return 'M '+p0o[0]+' '+p0o[1]+' A '+rO+' '+rO+' 0 '+large+' 1 '+p1o[0]+' '+p1o[1]+
+             ' L '+p0i[0]+' '+p0i[1]+' A '+rI+' '+rI+' 0 '+large+' 0 '+p1i[0]+' '+p1i[1]+' Z';
+    }
+
+    var angle = -90 + 90; // start at top (-90 offset baked into polar)
+    var a = 0;
+    items.forEach(function(item, i){
+      var frac = total > 0 ? item.value/total : 0;
+      var a1 = a + frac*360;
+      var path = arcPath(cx, cy, rOuter, rInner, a, a1);
+      var color = seriesColor(i);
+      if (path){
+        parts.push('<path class="hoverseg" data-tip="'+item.name+' &middot; &euro;'+fmt(item.value,1)+'k &middot; '+fmt(frac*100,1)+'%" d="'+path+'" fill="'+color+'"/>');
+        if (frac > 0.08){
+          var mid = a + (a1-a)/2;
+          var lp = polar(cx,cy,(rOuter+rInner)/2, mid);
+          parts.push('<text x="'+lp[0]+'" y="'+(lp[1]+3)+'" text-anchor="middle" font-size="9" font-weight="700" fill="#fff">'+Math.round(frac*100)+'%</text>');
+        }
+      }
+      a = a1;
+    });
+    parts.push('<text x="'+cx+'" y="'+(cy-2)+'" text-anchor="middle" class="donut-center-value">&euro;'+fmt(total,0)+'k</text>');
+    parts.push('<text x="'+cx+'" y="'+(cy+12)+'" text-anchor="middle" class="donut-center-label">TOTAL 2026</text>');
+    svg.innerHTML = parts.join('');
+    svg.querySelectorAll('.hoverseg').forEach(function(node){
+      node.addEventListener('mousemove', function(e){ showTip(e, '<div class="tt-title">'+node.getAttribute('data-tip')+'</div>'); });
+      node.addEventListener('mouseleave', hideTip);
+    });
+
+    list.innerHTML = items.map(function(item, i){
+      var pct = total > 0 ? item.value/total*100 : 0;
+      return '<div class="donut-list-row"><span class="swatch" style="background:'+seriesColor(i)+'"></span>'+
+        '<span class="name">'+item.name+'</span><span class="val">&euro;'+fmt(item.value,0)+'k</span><span class="pct">'+fmt(pct,0)+'%</span></div>';
+    }).join('');
+  }
+
+  var PRODUCT_COLOR_CACHE = null;
+  function productColorMap(d){
+    var items = productTotals(d);
+    var map = {};
+    items.forEach(function(item, i){ map[item.name] = seriesColor(i); });
+    return map;
+  }
+
+  function renderTables(d){
+    var pcolor = productColorMap(d);
+    // Booked deals
+    var booked = d.bookedDeals.slice().sort(function(a,b){ return (b.eur||0) - (a.eur||0); });
+    var tb = document.querySelector('#booked-table tbody');
+    tb.innerHTML = booked.map(function(x){
+      return '<tr><td class="name" title="'+x.name+'">'+x.name+'</td>'+
+        '<td><span class="tag" style="background:'+(pcolor[x.product]||'#888')+'">'+x.product+'</span></td>'+
+        '<td class="num val">'+fmt(x.eur,1)+'</td>'+
+        '<td class="num">'+fmt(sum(x.billedByQ),1)+'</td>'+
+        '<td class="num">'+fmt(sum(x.toBill2026ByQ),1)+'</td></tr>';
+    }).join('');
+    document.querySelector('#booked-table tfoot').innerHTML =
+      '<tr><td colspan="2">Total ('+booked.length+' deals)</td><td class="num">'+fmt(sum(booked.map(function(x){return x.eur;})),1)+'</td>'+
+      '<td class="num">'+fmt(sum(booked.map(function(x){return sum(x.billedByQ);})),1)+'</td>'+
+      '<td class="num">'+fmt(sum(booked.map(function(x){return sum(x.toBill2026ByQ);})),1)+'</td></tr>';
+    document.getElementById('booked-title').textContent = 'Booked Deals (' + booked.length + ')';
+
+    // Pipeline
+    var pipeline = d.toBeBookedDeals.slice().sort(function(a,b){ return (b.eur||0) - (a.eur||0); });
+    var tp = document.querySelector('#pipeline-table tbody');
+    tp.innerHTML = pipeline.map(function(x){
+      return '<tr><td class="name" title="'+(x.details? (x.name+' — '+x.details) : x.name)+'">'+x.name+'</td>'+
+        '<td><span class="tag" style="background:'+(pcolor[x.product]||'#888')+'">'+x.product+'</span></td>'+
+        '<td class="num val">'+fmt(x.eur,1)+'</td>'+
+        '<td class="num">'+fmt(x.toBill2026,1)+'</td>'+
+        '<td class="num">'+(x.toBill2027 ? fmt(x.toBill2027,1) : '—')+'</td></tr>';
+    }).join('');
+    document.querySelector('#pipeline-table tfoot').innerHTML =
+      '<tr><td colspan="2">Total ('+pipeline.length+' deals)</td><td class="num">'+fmt(sum(pipeline.map(function(x){return x.eur;})),1)+'</td>'+
+      '<td class="num">'+fmt(sum(pipeline.map(function(x){return x.toBill2026;})),1)+'</td>'+
+      '<td class="num">'+fmt(sum(pipeline.map(function(x){return x.toBill2027;})),1)+'</td></tr>';
+    document.getElementById('pipeline-title').textContent = 'Pipeline — To Be Booked (' + pipeline.length + ')';
+  }
+
+  function renderAll(d){
+    document.getElementById('data-source-label').textContent = d.sourceLabel;
+    document.getElementById('fx-pill').textContent = 'EUR/USD ' + (d.fxRate || 1.17);
+    document.getElementById('generated-label').textContent = 'Rendered ' + new Date().toLocaleString();
+    renderKPIs(d);
+    renderProgress(d);
+    renderBarChart(d);
+    renderDonut(d);
+    renderTables(d);
+  }
+
+  renderAll(DEFAULT_DATA);
+
+  /* ---------------------------------------------------------------
+     FILE UPLOAD
+     --------------------------------------------------------------- */
+  var uploadBtn = document.getElementById('upload-btn');
+  var uploadInput = document.getElementById('upload-input');
+  var fileStatus = document.getElementById('file-status');
+  uploadBtn.addEventListener('click', function(){ uploadInput.click(); });
+  uploadInput.addEventListener('change', function(e){
+    var file = e.target.files && e.target.files[0];
+    if (!file) return;
+    fileStatus.textContent = 'Loading ' + file.name + '…';
+    var reader = new FileReader();
+    reader.onload = function(evt){
+      try {
+        var wb = XLSX.read(new Uint8Array(evt.target.result), { type: 'array' });
+        var data = extractFromWorkbook(wb, file.name);
+        renderAll(data);
+        fileStatus.textContent = 'Loaded: ' + file.name;
+      } catch (err){
+        console.error(err);
+        fileStatus.textContent = 'Could not read "' + file.name + '" — check it matches the template layout.';
+      }
+    };
+    reader.onerror = function(){ fileStatus.textContent = 'Error reading file.'; };
+    reader.readAsArrayBuffer(file);
+  });
+})();
+</script>
