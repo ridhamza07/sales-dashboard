@@ -1,0 +1,321 @@
+<title>Design Timeline — WiW1.1-1kW</title>
+<style>
+  :root {
+    color-scheme: light;
+    --surface-1:      #ffffff;
+    --surface-2:      #f2f2ef;
+    --page:           #ffffff;
+    --text-primary:   #0b0b0b;
+    --text-secondary: #52514e;
+    --text-muted:     #7a7972;
+    --grid:           #e7e6e0;
+    --baseline:       #c3c2b7;
+    --border:         rgba(11,11,11,0.14);
+    --seg-stroke:     rgba(11,11,11,0.12);
+    --series-1: #1f68c4; /* blue   - Prototype */
+    --series-2: #d85a20; /* orange - EVT */
+    --series-3: #0f9c6c; /* aqua   - DVT */
+    --series-4: #c98500; /* amber  - PVT */
+    --milestone: #0b0b0b;
+    --today:    #d33231;
+    --track:    #ececea;
+  }
+  * { box-sizing: border-box; }
+  body {
+    background: var(--page); color: var(--text-primary);
+    font: 13px/1.4 system-ui, -apple-system, "Segoe UI", sans-serif;
+    padding: 16px;
+  }
+  .wrap { max-width: 1220px; margin: 0 auto; }
+
+  header { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 14px; flex-wrap: wrap; }
+  header h1 { font-size: 17px; font-weight: 700; margin: 0; }
+  header .sub { color: var(--text-secondary); font-size: 11.5px; margin-top: 3px; }
+  header .sub b { color: var(--text-primary); font-weight: 600; }
+  .gen-label { font-size: 10.5px; color: var(--text-muted); white-space: nowrap; margin-top: 3px; }
+
+  .panel { background: var(--surface-1); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; }
+  .panel h2 { font-size: 11.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: var(--text-secondary); margin: 0 0 10px; }
+
+  .kpi-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 10px; }
+  .kpi .label { font-size: 11px; color: var(--text-secondary); margin-bottom: 4px; }
+  .kpi .value { font-size: 21px; font-weight: 700; letter-spacing: -0.01em; }
+  .kpi .value .unit { font-size: 12px; font-weight: 600; color: var(--text-muted); margin-left: 4px; }
+  .kpi .sub2 { font-size: 11px; margin-top: 4px; color: var(--text-secondary); }
+  .kpi .sub2 b { color: var(--text-primary); }
+  .kpi.slip .value { color: var(--series-2); }
+
+  .gantt-panel { margin-bottom: 10px; }
+  .gantt-svg { width: 100%; height: 260px; overflow: visible; }
+  .row-label { font-size: 11.5px; font-weight: 700; fill: var(--text-primary); }
+  .row-sub { font-size: 9.5px; fill: var(--text-muted); }
+  .axis-label { font-size: 10px; fill: var(--text-muted); }
+  .seg-chip-text { font-size: 10px; font-weight: 700; fill: var(--text-primary); }
+  .milestone-label { font-size: 10.5px; font-weight: 700; fill: var(--text-primary); }
+  .today-label { font-size: 9.5px; font-weight: 700; fill: var(--today); }
+
+  .legend { display: flex; flex-wrap: wrap; gap: 10px 18px; margin-top: 10px; align-items: center; }
+  .legend-item { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--text-secondary); }
+  .swatch { width: 9px; height: 9px; border-radius: 2px; flex: none; box-shadow: inset 0 0 0 1px var(--seg-stroke); }
+  .swatch.diamond { border-radius: 1px; transform: rotate(45deg); }
+  .legend-sep { width: 1px; height: 12px; background: var(--baseline); }
+
+  table { width: 100%; border-collapse: collapse; font-size: 11.5px; }
+  th { text-align: left; font-size: 10px; text-transform: uppercase; letter-spacing: .03em; color: var(--text-muted); font-weight: 600; padding: 5px 8px; border-bottom: 1px solid var(--baseline); }
+  th.num, td.num { text-align: right; font-variant-numeric: tabular-nums; }
+  td { padding: 5px 8px; border-bottom: 1px solid var(--grid); color: var(--text-secondary); }
+  tr:last-child td { border-bottom: none; }
+  td.name { color: var(--text-primary); font-weight: 700; display: flex; align-items: center; gap: 6px; }
+  .slip-badge { font-size: 10px; font-weight: 700; padding: 1.5px 7px; border-radius: 10px; white-space: nowrap; }
+  .slip-badge.up { background: #fdece3; color: #a8431a; }
+  .slip-badge.flat { background: var(--surface-2); color: var(--text-muted); }
+
+  footer { margin-top: 12px; font-size: 10.5px; color: var(--text-muted); }
+
+  #tooltip {
+    position: fixed; pointer-events: none; z-index: 50; display: none;
+    background: var(--surface-1); border: 1px solid var(--border); border-radius: 6px;
+    padding: 6px 9px; font-size: 11px; box-shadow: 0 4px 14px rgba(0,0,0,.15);
+    color: var(--text-primary); max-width: 240px;
+  }
+  #tooltip .tt-title { font-weight: 700; margin-bottom: 2px; }
+  #tooltip .tt-row { display: flex; justify-content: space-between; gap: 10px; color: var(--text-secondary); }
+
+  @media (max-width: 760px) { .kpi-row { grid-template-columns: 1fr; } }
+</style>
+
+<div class="wrap">
+  <header>
+    <div>
+      <h1>Design Timeline — WiW1.1-1kW / Wind Mill</h1>
+      <div class="sub">Teamwise <b>·</b> CN <b>·</b> Design phase: <b>EVT</b> <b>·</b> Previous plan vs. current plan</div>
+    </div>
+    <div class="gen-label" id="gen-label"></div>
+  </header>
+
+  <div class="kpi-row" id="kpi-row"></div>
+
+  <div class="panel gantt-panel">
+    <h2>Program Schedule — Previous vs. New Plan</h2>
+    <svg class="gantt-svg" id="gantt-chart" viewBox="0 0 1180 260"></svg>
+    <div class="legend" id="gantt-legend"></div>
+  </div>
+
+  <div class="panel">
+    <h2>Phase-by-Phase Detail</h2>
+    <table id="detail-table">
+      <thead><tr><th>Phase</th><th>Previous Start</th><th>Previous End</th><th>New Start</th><th>New End</th><th class="num">Slip</th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <footer>Dates derived from ISO week labels in the source workbook (e.g. "W48'25" = week 48, 2025). Slip measured on phase end date, previous → new plan.</footer>
+</div>
+
+<div id="tooltip"></div>
+
+<script>
+(function(){
+  "use strict";
+
+  function cssVar(name){ return getComputedStyle(document.documentElement).getPropertyValue(name).trim(); }
+  function fmtDate(iso){
+    var d = new Date(iso+'T00:00:00');
+    return d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+  }
+  function addDays(iso, n){
+    var d = new Date(iso+'T00:00:00');
+    d.setDate(d.getDate()+n);
+    return d.toISOString().slice(0,10);
+  }
+  function daysBetween(a, b){
+    return Math.round((new Date(b+'T00:00:00') - new Date(a+'T00:00:00')) / 86400000);
+  }
+  function weeksBetween(a, b){ return Math.round(daysBetween(a,b)/7); }
+
+  /* ---------------------------------------------------------------
+     DATA — extracted from Design_in_progress.xlsx (Teamwise / WiW1.1-1kW / Wind Mill)
+     --------------------------------------------------------------- */
+  var TODAY = '2026-09-01';
+  var PHASE_COLORS = ['--series-1','--series-2','--series-3','--series-4'];
+
+  var PLANS = [
+    {
+      key: 'previous', label: 'Previous Plan',
+      phases: [
+        { name: 'Prototype', week: 'PS', start: '2025-11-24', end: '2026-02-16', wStart: "W48'25", wEnd: "W08'26" },
+        { name: 'EVT',       week: 'EVT', start: '2026-02-16', end: '2026-08-03', wStart: "W08'26", wEnd: "W32'26" },
+        { name: 'DVT',       week: 'DVT', start: '2026-08-03', end: '2026-09-14', wStart: "W32'26", wEnd: "W38'26" },
+        { name: 'PVT',       week: 'PVT', start: '2026-09-14', end: '2026-10-26', wStart: "W38'26", wEnd: "W44'26" }
+      ],
+      dwin: { date: '2026-11-02', week: "W45'26" }
+    },
+    {
+      key: 'new', label: 'New Plan',
+      phases: [
+        { name: 'Prototype', week: 'PS', start: '2025-11-24', end: '2026-02-16', wStart: "W48'25", wEnd: "W08'26" },
+        { name: 'EVT',       week: 'EVT', start: '2026-02-16', end: '2026-09-21', wStart: "W08'26", wEnd: "W39'26" },
+        { name: 'DVT',       week: 'DVT', start: '2026-09-21', end: '2026-11-02', wStart: "W39'26", wEnd: "W45'26" },
+        { name: 'PVT',       week: 'PVT', start: '2026-11-02', end: '2026-12-14', wStart: "W45'26", wEnd: "W51'26" }
+      ],
+      dwin: { date: '2026-12-21', week: "W52'26" }
+    }
+  ];
+
+  var tooltip = document.getElementById('tooltip');
+  function showTip(evt, html){
+    tooltip.innerHTML = html;
+    tooltip.style.display = 'block';
+    var x = evt.clientX + 14, y = evt.clientY + 14;
+    var tw = tooltip.offsetWidth, th = tooltip.offsetHeight;
+    if (x + tw > window.innerWidth - 8) x = evt.clientX - tw - 14;
+    if (y + th > window.innerHeight - 8) y = evt.clientY - th - 14;
+    tooltip.style.left = x + 'px'; tooltip.style.top = y + 'px';
+  }
+  function hideTip(){ tooltip.style.display = 'none'; }
+
+  function renderKPIs(){
+    var prevPhases = PLANS[0].phases, newPhases = PLANS[1].phases;
+    var evtPrev = prevPhases[1], evtNew = newPhases[1];
+    var evtSlipWk = weeksBetween(evtPrev.end, evtNew.end);
+    var dwinSlipWk = weeksBetween(PLANS[0].dwin.date, PLANS[1].dwin.date);
+
+    var todayPhaseNew = newPhases.find(function(p){ return TODAY >= p.start && TODAY < p.end; });
+    var statusHtml;
+    if (todayPhaseNew){
+      var wkToNext = weeksBetween(TODAY, todayPhaseNew.end);
+      statusHtml = '<div class="kpi panel"><div class="label">Status Today (' + fmtDate(TODAY) + ')</div>' +
+        '<div class="value">' + todayPhaseNew.name + '</div>' +
+        '<div class="sub2">~<b>' + wkToNext + ' wks</b> to ' + 'next phase (new plan)</div></div>';
+    } else {
+      statusHtml = '<div class="kpi panel"><div class="label">Status Today</div><div class="value">' + fmtDate(TODAY) + '</div></div>';
+    }
+
+    var el = document.getElementById('kpi-row');
+    el.innerHTML =
+      '<div class="kpi panel slip"><div class="label">Design-Win Slip</div><div class="value">+' + dwinSlipWk + '<span class="unit">weeks</span></div>' +
+      '<div class="sub2">' + PLANS[0].dwin.week + ' &rarr; <b>' + PLANS[1].dwin.week + '</b></div></div>' +
+      '<div class="kpi panel slip"><div class="label">Slip Source — EVT Phase</div><div class="value">+' + evtSlipWk + '<span class="unit">weeks</span></div>' +
+      '<div class="sub2">ends ' + evtPrev.wEnd + ' &rarr; <b>' + evtNew.wEnd + '</b></div></div>' +
+      statusHtml;
+  }
+
+  function renderGantt(){
+    var svg = document.getElementById('gantt-chart');
+    var W = 1180, H = 260;
+    var padL = 92, padR = 16, padT = 34, padB = 34;
+    var chartW = W - padL - padR;
+    var rowH = 30, rowGap = 78;
+    var rowY = [padT + 14, padT + 14 + rowGap];
+
+    // domain
+    var allStarts = [], allEnds = [];
+    PLANS.forEach(function(pl){
+      pl.phases.forEach(function(ph){ allStarts.push(ph.start); allEnds.push(ph.end); });
+      allEnds.push(pl.dwin.date);
+    });
+    var minStart = allStarts.sort()[0];
+    var maxEnd = allEnds.sort().slice(-1)[0];
+    var domainStart = addDays(minStart, -18);
+    var domainEnd = addDays(maxEnd, 18);
+    var totalDays = daysBetween(domainStart, domainEnd);
+
+    function x(iso){ return padL + (daysBetween(domainStart, iso) / totalDays) * chartW; }
+
+    var parts = [];
+
+    // month gridlines
+    var d = new Date(domainStart + 'T00:00:00');
+    d.setDate(1);
+    if (d < new Date(domainStart+'T00:00:00')) { /* keep */ }
+    var monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    while (d.toISOString().slice(0,10) <= domainEnd){
+      var iso = d.toISOString().slice(0,10);
+      if (iso >= domainStart){
+        var gx = x(iso);
+        parts.push('<line x1="'+gx+'" y1="'+(padT-6)+'" x2="'+gx+'" y2="'+(H-padB+4)+'" stroke="var(--grid)" stroke-width="1"/>');
+        var lbl = monthNames[d.getMonth()] + " '" + String(d.getFullYear()).slice(2);
+        parts.push('<text x="'+gx+'" y="'+(H-padB+18)+'" text-anchor="start" class="axis-label">'+lbl+'</text>');
+      }
+      d.setMonth(d.getMonth()+1);
+    }
+    // baseline
+    parts.push('<line x1="'+padL+'" y1="'+(H-padB)+'" x2="'+(padL+chartW)+'" y2="'+(H-padB)+'" stroke="var(--baseline)" stroke-width="1"/>');
+
+    // today marker
+    if (TODAY >= domainStart && TODAY <= domainEnd){
+      var tx = x(TODAY);
+      parts.push('<line x1="'+tx+'" y1="'+(padT-10)+'" x2="'+tx+'" y2="'+(H-padB)+'" stroke="var(--today)" stroke-width="1.5" stroke-dasharray="3,3"/>');
+      parts.push('<text x="'+tx+'" y="'+(padT-14)+'" text-anchor="middle" class="today-label">Today</text>');
+    }
+
+    // rows
+    PLANS.forEach(function(pl, ri){
+      var y0 = rowY[ri];
+      parts.push('<text x="8" y="'+(y0+rowH/2+4)+'" class="row-label">'+pl.label+'</text>');
+      var totalWk = weeksBetween(pl.phases[0].start, pl.dwin.date);
+      parts.push('<text x="8" y="'+(y0+rowH/2+18)+'" class="row-sub">'+totalWk+' wks total</text>');
+
+      pl.phases.forEach(function(ph, pi){
+        var x0 = x(ph.start), x1 = x(ph.end);
+        var w = Math.max(x1 - x0, 1);
+        var color = cssVar(PHASE_COLORS[pi % PHASE_COLORS.length]);
+        var tip = ph.name + ' &middot; ' + pl.label + '<br>' + ph.wStart + ' &rarr; ' + ph.wEnd +
+          ' (' + fmtDate(ph.start) + ' &ndash; ' + fmtDate(ph.end) + ')<br>' + weeksBetween(ph.start, ph.end) + ' weeks';
+        parts.push('<rect class="hoverseg" data-tip="'+tip+'" x="'+x0+'" y="'+y0+'" width="'+w+'" height="'+rowH+'" fill="'+color+'" stroke="var(--seg-stroke)" stroke-width="1" rx="2"/>');
+        // inline label chip if wide enough
+        if (w > 46){
+          var cx = x0 + w/2;
+          var chipW = Math.min(w - 6, ph.name.length * 6.4 + 12);
+          parts.push('<rect x="'+(cx-chipW/2)+'" y="'+(y0+rowH/2-9)+'" width="'+chipW+'" height="18" rx="4" fill="rgba(255,255,255,0.88)"/>');
+          parts.push('<text x="'+cx+'" y="'+(y0+rowH/2+4)+'" text-anchor="middle" class="seg-chip-text">'+ph.name+'</text>');
+        }
+      });
+
+      // D-Win milestone diamond
+      var mx = x(pl.dwin.date), my = y0 + rowH/2;
+      var s = 8;
+      var mTip = 'D-Win &middot; ' + pl.label + '<br>' + pl.dwin.week + ' (' + fmtDate(pl.dwin.date) + ')';
+      parts.push('<path class="hoverseg" data-tip="'+mTip+'" d="M '+mx+' '+(my-s)+' L '+(mx+s)+' '+my+' L '+mx+' '+(my+s)+' L '+(mx-s)+' '+my+' Z" fill="var(--milestone)" stroke="#fff" stroke-width="1.5"/>');
+      parts.push('<text x="'+mx+'" y="'+(y0-8)+'" text-anchor="middle" class="milestone-label">D-Win '+pl.dwin.week+'</text>');
+    });
+
+    svg.innerHTML = parts.join('');
+    svg.querySelectorAll('.hoverseg').forEach(function(node){
+      node.addEventListener('mousemove', function(e){ showTip(e, '<div class="tt-title">'+node.getAttribute('data-tip')+'</div>'); });
+      node.addEventListener('mouseleave', hideTip);
+    });
+
+    var legend = document.getElementById('gantt-legend');
+    var names = ['Prototype','EVT','DVT','PVT'];
+    var html = names.map(function(n,i){
+      return '<span class="legend-item"><span class="swatch" style="background:'+cssVar(PHASE_COLORS[i])+'"></span>'+n+'</span>';
+    }).join('');
+    html += '<span class="legend-sep"></span><span class="legend-item"><span class="swatch diamond" style="background:var(--milestone)"></span>D-Win milestone</span>';
+    html += '<span class="legend-sep"></span><span class="legend-item" style="color:var(--today);">&#9473;&#9473; Today</span>';
+    legend.innerHTML = html;
+  }
+
+  function renderTable(){
+    var prev = PLANS[0].phases, next = PLANS[1].phases;
+    var rows = prev.map(function(p, i){
+      var n = next[i];
+      var slipWk = weeksBetween(p.end, n.end);
+      var badge = slipWk > 0 ? '<span class="slip-badge up">+'+slipWk+' wk</span>' : '<span class="slip-badge flat">on plan</span>';
+      var color = 'var(' + PHASE_COLORS[i % PHASE_COLORS.length] + ')';
+      return '<tr><td class="name"><span class="swatch" style="background:'+color+'"></span>'+p.name+'</td>'+
+        '<td>'+p.wStart+'</td><td>'+p.wEnd+'</td><td>'+n.wStart+'</td><td>'+n.wEnd+'</td><td class="num">'+badge+'</td></tr>';
+    });
+    var dwinSlip = weeksBetween(PLANS[0].dwin.date, PLANS[1].dwin.date);
+    rows.push('<tr><td class="name"><span class="swatch diamond" style="background:var(--milestone)"></span>D-Win</td>'+
+      '<td>&mdash;</td><td>'+PLANS[0].dwin.week+'</td><td>&mdash;</td><td>'+PLANS[1].dwin.week+'</td>'+
+      '<td class="num"><span class="slip-badge up">+'+dwinSlip+' wk</span></td></tr>');
+    document.querySelector('#detail-table tbody').innerHTML = rows.join('');
+  }
+
+  document.getElementById('gen-label').textContent = 'Rendered ' + new Date().toLocaleString();
+  renderKPIs();
+  renderGantt();
+  renderTable();
+})();
+</script>
