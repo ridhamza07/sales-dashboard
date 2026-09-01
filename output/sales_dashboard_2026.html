@@ -156,6 +156,19 @@
   .donut-list-row .val { font-weight: 700; font-variant-numeric: tabular-nums; }
   .donut-list-row .pct { color: var(--text-muted); width: 34px; text-align: right; font-variant-numeric: tabular-nums; }
 
+  /* ---- confidence distribution ---- */
+  .confidence-panel { margin-bottom: 10px; }
+  .confidence-rows { display: flex; flex-direction: column; gap: 10px; margin-top: 2px; }
+  .conf-row { cursor: default; }
+  .conf-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 4px; gap: 10px; }
+  .conf-head .name { font-size: 12px; font-weight: 700; color: var(--text-primary); display: flex; align-items: center; gap: 7px; white-space: nowrap; }
+  .conf-head .desc { font-size: 10.5px; font-weight: 400; color: var(--text-muted); }
+  .conf-head .right { display: flex; align-items: baseline; gap: 8px; white-space: nowrap; }
+  .conf-badge { font-size: 10px; font-weight: 700; color: var(--text-secondary); background: var(--surface-2); border: 1px solid var(--border); padding: 1.5px 7px; border-radius: 10px; }
+  .conf-value { font-size: 13px; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .conf-track { height: 14px; border-radius: 4px; background: var(--track); overflow: hidden; }
+  .conf-fill { height: 100%; border-radius: 4px 0 0 4px; }
+
   /* ---- deals tables ---- */
   .deals-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
   table { width: 100%; border-collapse: collapse; font-size: 11.5px; }
@@ -234,6 +247,11 @@
         <div class="donut-list" id="donut-list"></div>
       </div>
     </div>
+  </div>
+
+  <div class="panel confidence-panel">
+    <h2>2026 Billing Distribution by Confidence</h2>
+    <div class="confidence-rows" id="confidence-rows"></div>
   </div>
 
   <div class="deals-row">
@@ -583,6 +601,30 @@
     }).join('');
   }
 
+  function renderConfidence(d){
+    var el = document.getElementById('confidence-rows');
+    var t = d.billingTotals2026;
+    var items = [
+      { name: 'Billed', desc: 'invoiced to date', value: t.billedToDate, confidence: 100, color: seriesColor(0) },
+      { name: 'To bill — booked deals', desc: 'contracted, not yet billed', value: t.bookedToBill, confidence: 70, color: seriesColor(1) },
+      { name: 'To bill — deals to book', desc: 'pipeline, not yet booked', value: t.onOrdersToBook, confidence: 30, color: seriesColor(2) }
+    ];
+    var maxV = Math.max.apply(null, items.map(function(i){ return i.value || 0; }).concat([1]));
+    var niceMax = Math.ceil(maxV / 50) * 50 || 50;
+    el.innerHTML = items.map(function(item){
+      var pct = niceMax ? Math.max((item.value || 0) / niceMax * 100, 0) : 0;
+      var tip = item.name + ' &middot; &euro;' + fmt(item.value,1) + 'k &middot; indicative confidence ' + item.confidence + '%';
+      return '<div class="conf-row hoverseg" data-tip="'+tip+'">'+
+        '<div class="conf-head"><span class="name"><span class="swatch" style="background:'+item.color+'"></span>'+item.name+' <span class="desc">('+item.desc+')</span></span>'+
+        '<span class="right"><span class="conf-badge">'+item.confidence+'% confidence</span><span class="conf-value">&euro;'+fmt(item.value,1)+'k</span></span></div>'+
+        '<div class="conf-track"><div class="conf-fill" style="width:'+pct+'%;background:'+item.color+'"></div></div></div>';
+    }).join('');
+    el.querySelectorAll('.hoverseg').forEach(function(node){
+      node.addEventListener('mousemove', function(e){ showTip(e, '<div class="tt-title">'+node.getAttribute('data-tip')+'</div>'); });
+      node.addEventListener('mouseleave', hideTip);
+    });
+  }
+
   var PRODUCT_COLOR_CACHE = null;
   function productColorMap(d){
     var items = productTotals(d);
@@ -634,6 +676,7 @@
     renderProgress(d);
     renderBarChart(d);
     renderDonut(d);
+    renderConfidence(d);
     renderTables(d);
   }
 
