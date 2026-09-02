@@ -1,0 +1,533 @@
+<title>Portfolio Design Timeline</title>
+<style>
+  :root {
+    color-scheme: light;
+    --surface-1:      #ffffff;
+    --surface-2:      #f2f2ef;
+    --page:           #ffffff;
+    --text-primary:   #0b0b0b;
+    --text-secondary: #52514e;
+    --text-muted:     #7a7972;
+    --grid:           #e7e6e0;
+    --grid-strong:    #d8d7cf;
+    --baseline:       #c3c2b7;
+    --border:         rgba(11,11,11,0.14);
+    --seg-stroke:     rgba(11,11,11,0.12);
+    --ghost-stroke:   #9a998f;
+    --series-poc:       #d5578a; /* magenta - PoC */
+    --series-prototype: #1f68c4; /* blue    - Prototype */
+    --series-evt:       #d85a20; /* orange  - EVT */
+    --series-dvt:       #0f9c6c; /* aqua    - DVT */
+    --series-pvt:       #c98500; /* amber   - PVT */
+    --milestone: #0b0b0b;
+    --today:    #d33231;
+    --track:    #ececea;
+    --up-bg:    #fdece3;
+    --up-text:  #a8431a;
+    --flat-bg:  #eaf6f0;
+    --flat-text:#0f7a55;
+  }
+  * { box-sizing: border-box; }
+  body {
+    background: var(--page); color: var(--text-primary);
+    font: 13px/1.4 system-ui, -apple-system, "Segoe UI", sans-serif;
+    padding: 16px;
+  }
+  .wrap { max-width: 1260px; margin: 0 auto; }
+
+  header { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 14px; flex-wrap: wrap; }
+  header h1 { font-size: 17px; font-weight: 700; margin: 0; }
+  header .sub { color: var(--text-secondary); font-size: 11.5px; margin-top: 3px; }
+  header .sub b { color: var(--text-primary); font-weight: 600; }
+  .header-right { display: flex; align-items: center; gap: 10px; }
+  .file-status { font-size: 11px; color: var(--text-muted); white-space: nowrap; }
+  .btn {
+    font: inherit; font-size: 12px; font-weight: 600; cursor: pointer;
+    background: var(--series-prototype); color: #fff; border: none;
+    padding: 8px 14px; border-radius: 7px; display: inline-flex;
+    align-items: center; gap: 6px; white-space: nowrap;
+  }
+  .btn:hover { filter: brightness(1.08); }
+  .btn svg { width: 14px; height: 14px; }
+
+  .panel { background: var(--surface-1); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; }
+  .panel h2 { font-size: 11.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: var(--text-secondary); margin: 0 0 10px; }
+
+  .kpi-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 10px; }
+  .kpi .label { font-size: 11px; color: var(--text-secondary); margin-bottom: 4px; }
+  .kpi .value { font-size: 19px; font-weight: 700; letter-spacing: -0.01em; }
+  .kpi .value .unit { font-size: 12px; font-weight: 600; color: var(--text-muted); margin-left: 4px; }
+  .kpi .sub2 { font-size: 11px; margin-top: 4px; color: var(--text-secondary); }
+  .kpi .sub2 b { color: var(--text-primary); }
+  .kpi.warn .value { color: var(--up-text); }
+  .kpi.good .value { color: var(--flat-text); }
+
+  .gantt-panel { margin-bottom: 10px; }
+  .gantt-body { display: flex; gap: 8px; }
+  .gantt-labels { width: 200px; flex: none; }
+  .gantt-chart-wrap { flex: 1; min-width: 0; }
+  .gantt-svg { width: 100%; overflow: visible; display: block; }
+
+  .row-label { height: var(--row-gap, 62px); display: flex; flex-direction: column; justify-content: center; border-top: 1px solid var(--grid); padding: 2px 4px 2px 0; }
+  .row-label:first-child { border-top: none; }
+  .row-label .co { font-size: 12px; font-weight: 700; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .row-label .prod { font-size: 10.5px; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 1px; }
+  .row-label .badges { display: flex; gap: 4px; margin-top: 4px; flex-wrap: wrap; }
+  .phase-badge { font-size: 9px; font-weight: 700; padding: 1px 6px; border-radius: 9px; color: #fff; white-space: nowrap; }
+  .slip-badge { font-size: 9px; font-weight: 700; padding: 1px 6px; border-radius: 9px; white-space: nowrap; }
+  .slip-badge.up { background: var(--up-bg); color: var(--up-text); }
+  .slip-badge.flat { background: var(--flat-bg); color: var(--flat-text); }
+
+  .axis-label { font-size: 9.5px; fill: var(--text-muted); }
+  .today-label { font-size: 9.5px; font-weight: 700; fill: var(--today); }
+  .seg-chip-text { font-size: 9.5px; font-weight: 700; fill: var(--text-primary); }
+  .milestone-label { font-size: 9.5px; font-weight: 700; fill: var(--text-primary); }
+
+  .legend { display: flex; flex-wrap: wrap; gap: 9px 16px; margin-top: 10px; align-items: center; }
+  .legend-item { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--text-secondary); }
+  .swatch { width: 9px; height: 9px; border-radius: 2px; flex: none; box-shadow: inset 0 0 0 1px var(--seg-stroke); }
+  .swatch.diamond { border-radius: 1px; transform: rotate(45deg); }
+  .swatch.ghost { background: none !important; border: 1.5px dashed var(--ghost-stroke); box-shadow: none; }
+  .legend-sep { width: 1px; height: 12px; background: var(--baseline); }
+
+  table { width: 100%; border-collapse: collapse; font-size: 11.5px; }
+  th { text-align: left; font-size: 10px; text-transform: uppercase; letter-spacing: .03em; color: var(--text-muted); font-weight: 600; padding: 5px 8px; border-bottom: 1px solid var(--baseline); }
+  th.num, td.num { text-align: right; font-variant-numeric: tabular-nums; }
+  td { padding: 5.5px 8px; border-bottom: 1px solid var(--grid); color: var(--text-secondary); vertical-align: middle; }
+  tr:last-child td { border-bottom: none; }
+  td.name { color: var(--text-primary); font-weight: 700; }
+  td.name .sub { display: block; font-weight: 400; color: var(--text-muted); font-size: 10.5px; }
+
+  footer { margin-top: 12px; font-size: 10.5px; color: var(--text-muted); }
+
+  #tooltip {
+    position: fixed; pointer-events: none; z-index: 50; display: none;
+    background: var(--surface-1); border: 1px solid var(--border); border-radius: 6px;
+    padding: 6px 9px; font-size: 11px; box-shadow: 0 4px 14px rgba(0,0,0,.15);
+    color: var(--text-primary); max-width: 250px;
+  }
+  #tooltip .tt-title { font-weight: 700; margin-bottom: 2px; }
+
+  @media (max-width: 760px) { .kpi-row { grid-template-columns: 1fr; } .gantt-labels { width: 130px; } }
+</style>
+
+<div class="wrap">
+  <header>
+    <div>
+      <h1>Portfolio Design Timeline</h1>
+      <div class="sub" id="data-source-label">6 projects &middot; as of <b>week —</b></div>
+    </div>
+    <div class="header-right">
+      <span class="file-status" id="file-status"></span>
+      <input type="file" id="upload-input" accept=".xlsx,.xls" style="display:none">
+      <button class="btn" id="upload-btn" title="Load an updated local Excel file using the same template layout">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        Load Excel File
+      </button>
+    </div>
+  </header>
+
+  <div class="kpi-row" id="kpi-row"></div>
+
+  <div class="panel gantt-panel">
+    <h2>Previous Plan vs. Current Plan — All Projects</h2>
+    <div class="gantt-body">
+      <div class="gantt-labels" id="gantt-labels"></div>
+      <div class="gantt-chart-wrap">
+        <svg class="gantt-svg" id="gantt-chart"></svg>
+      </div>
+    </div>
+    <div class="legend" id="gantt-legend"></div>
+  </div>
+
+  <div class="panel">
+    <h2>Project Detail</h2>
+    <table id="detail-table">
+      <thead><tr><th>Project</th><th>Current Phase</th><th>Previous End</th><th>New End</th><th class="num">Slip</th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <footer id="footer-note">Dates derived from ISO week labels in the source workbook (e.g. "W48'25" = week 48, 2025). Slip measured on each project's last known milestone (D-Win, or last phase end where D-Win isn't set yet), previous → new plan.</footer>
+</div>
+
+<div id="tooltip"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script>
+(function(){
+  "use strict";
+
+  function fmtDate(iso){
+    var d = new Date(iso+'T00:00:00');
+    return d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+  }
+  function addDays(iso, n){
+    var d = new Date(iso+'T00:00:00');
+    d.setDate(d.getDate()+n);
+    return d.toISOString().slice(0,10);
+  }
+  function daysBetween(a, b){
+    return Math.round((new Date(b+'T00:00:00') - new Date(a+'T00:00:00')) / 86400000);
+  }
+  function weeksBetween(a, b){ return Math.round(daysBetween(a,b)/7); }
+
+  function parseWeek(s){
+    if (s === null || s === undefined) return null;
+    var m = String(s).trim().match(/^W?(\d{1,2})'(\d{2})$/i);
+    if (!m) return null;
+    var week = parseInt(m[1],10), year = 2000 + parseInt(m[2],10);
+    return isoWeekToDate(year, week);
+  }
+  function isoWeekToDate(year, week){
+    var jan4 = new Date(Date.UTC(year, 0, 4));
+    var dow = jan4.getUTCDay() || 7;
+    var monday = new Date(jan4);
+    monday.setUTCDate(jan4.getUTCDate() - dow + 1 + (week-1)*7);
+    return monday.toISOString().slice(0,10);
+  }
+
+  var PHASE_COLOR = { PoC: '--series-poc', Prototype: '--series-prototype', EVT: '--series-evt', DVT: '--series-dvt', PVT: '--series-pvt' };
+  var PHASE_ORDER = ['PoC','Prototype','EVT','DVT','PVT'];
+  function cssVar(name){ return getComputedStyle(document.documentElement).getPropertyValue(name).trim(); }
+  function phaseColor(name){ return cssVar(PHASE_COLOR[name] || '--text-muted'); }
+
+  function lastMilestone(plan){
+    if (plan.dwin) return { date: plan.dwin.date, week: plan.dwin.week, isDwin: true };
+    if (plan.phases.length){
+      var last = plan.phases[plan.phases.length-1];
+      return { date: last.end, week: last.wEnd, isDwin: false };
+    }
+    return null;
+  }
+  function firstStart(plan){
+    return plan.phases.length ? plan.phases[0].start : null;
+  }
+
+  /* ---------------------------------------------------------------
+     DEFAULT DATA — extracted from design_in_progression_graph.xlsx
+     --------------------------------------------------------------- */
+  var DEFAULT_DATA = {
+    sourceLabel: 'Sample data · design_in_progression_graph.xlsx',
+    currentWeek: { raw: "35'26", date: '2026-08-24' },
+    projects: [
+      { company:'Teamwise', site:'CN', product:'WiW1.1-1kW', desc:'Wind Mill', stage:'Design in', currentPhase:'EVT',
+        previous:{ phases:[
+          {name:'Prototype',start:'2025-11-24',end:'2026-02-16',wStart:"W48'25",wEnd:"W08'26"},
+          {name:'EVT',start:'2026-02-16',end:'2026-08-03',wStart:"W08'26",wEnd:"W32'26"},
+          {name:'DVT',start:'2026-08-03',end:'2026-09-14',wStart:"W32'26",wEnd:"W38'26"},
+          {name:'PVT',start:'2026-09-14',end:'2026-10-26',wStart:"W38'26",wEnd:"W44'26"}
+        ], dwin:{date:'2026-11-09',week:"W46'26"} },
+        new:{ phases:[
+          {name:'Prototype',start:'2025-11-24',end:'2026-02-16',wStart:"W48'25",wEnd:"W08'26"},
+          {name:'EVT',start:'2026-02-16',end:'2026-09-21',wStart:"W08'26",wEnd:"W39'26"},
+          {name:'DVT',start:'2026-09-21',end:'2026-11-02',wStart:"W39'26",wEnd:"W45'26"},
+          {name:'PVT',start:'2026-11-02',end:'2026-12-14',wStart:"W45'26",wEnd:"W51'26"}
+        ], dwin:{date:'2027-01-04',week:"W1'27"} } },
+      { company:'ATEC', site:'TW', product:'WiW1.0-1kW', desc:'Telecom PSU', stage:'Design in', currentPhase:'Prototype',
+        previous:{ phases:[
+          {name:'Prototype',start:'2025-05-26',end:'2026-06-15',wStart:"W22'25",wEnd:"W25'26"},
+          {name:'EVT',start:'2026-06-15',end:'2026-09-28',wStart:"W25'26",wEnd:"W40'26"},
+          {name:'DVT',start:'2026-09-28',end:'2026-11-09',wStart:"W40'26",wEnd:"W46'26"},
+          {name:'PVT',start:'2026-11-09',end:'2026-12-21',wStart:"W46'26",wEnd:"W52'26"}
+        ], dwin:{date:'2027-01-11',week:"W2'27"} },
+        new:{ phases:[
+          {name:'Prototype',start:'2025-05-26',end:'2026-09-07',wStart:"W22'25",wEnd:"W37'26"},
+          {name:'EVT',start:'2026-09-07',end:'2027-01-18',wStart:"W37'26",wEnd:"W03'27"},
+          {name:'DVT',start:'2027-01-18',end:'2027-03-01',wStart:"W03'27",wEnd:"W09'27"},
+          {name:'PVT',start:'2027-03-01',end:'2027-04-12',wStart:"W09'27",wEnd:"W15'27"}
+        ], dwin:{date:'2027-04-26',week:"W17'27"} } },
+      { company:'Powernet', site:'KR', product:'WiW1.0-250W', desc:'Monitor Adapter', stage:'Design in', currentPhase:'Prototype',
+        previous:{ phases:[
+          {name:'Prototype',start:'2025-11-03',end:'2026-07-27',wStart:"W45'25",wEnd:"W31'26"},
+          {name:'EVT',start:'2026-07-27',end:'2026-10-26',wStart:"W31'26",wEnd:"W44'26"},
+          {name:'DVT',start:'2026-10-26',end:'2026-12-07',wStart:"W44'26",wEnd:"W50'26"},
+          {name:'PVT',start:'2026-12-07',end:'2027-01-25',wStart:"W50'26",wEnd:"W04'27"}
+        ], dwin:{date:'2027-02-08',week:"W06'27"} },
+        new:{ phases:[
+          {name:'Prototype',start:'2025-11-03',end:'2026-10-12',wStart:"W45'25",wEnd:"W42'26"},
+          {name:'EVT',start:'2026-10-12',end:'2027-01-25',wStart:"W42'26",wEnd:"W04'27"},
+          {name:'DVT',start:'2027-01-25',end:'2027-03-08',wStart:"W04'27",wEnd:"W10'27"},
+          {name:'PVT',start:'2027-03-08',end:'2027-04-19',wStart:"W10'27",wEnd:"W16'27"}
+        ], dwin:{date:'2027-05-03',week:"W18'27"} } },
+      { company:'Aohai', site:'CN', product:'WiW1.1-1kW', desc:'Robots', stage:'Design in', currentPhase:'Prototype',
+        previous:{ phases:[
+          {name:'Prototype',start:'2025-03-31',end:'2026-07-20',wStart:"W14'25",wEnd:"W30'26"},
+          {name:'EVT',start:'2026-07-20',end:'2026-11-23',wStart:"W30'26",wEnd:"W48'26"},
+          {name:'DVT',start:'2026-11-23',end:'2027-01-04',wStart:"W48'26",wEnd:"W01'27"},
+          {name:'PVT',start:'2027-01-04',end:'2027-02-15',wStart:"W01'27",wEnd:"W07'27"}
+        ], dwin:{date:'2027-03-01',week:"W09'27"} },
+        new:{ phases:[
+          {name:'Prototype',start:'2025-03-31',end:'2026-10-05',wStart:"W14'25",wEnd:"W41'26"},
+          {name:'EVT',start:'2026-10-05',end:'2027-02-15',wStart:"W41'26",wEnd:"W07'27"},
+          {name:'DVT',start:'2027-02-15',end:'2027-03-29',wStart:"W07'27",wEnd:"W13'27"},
+          {name:'PVT',start:'2027-03-29',end:'2027-05-10',wStart:"W13'27",wEnd:"W19'27"}
+        ], dwin:{date:'2027-05-24',week:"W21'27"} } },
+      { company:'Chicony', site:'TW', product:'WiW1.0-350W', desc:'All in One', stage:'PoC', currentPhase:'PoC exit',
+        previous:{ phases:[{name:'PoC',start:'2025-09-22',end:'2026-07-06',wStart:"W39'25",wEnd:"W28'26"}], dwin:null },
+        new:{ phases:[{name:'PoC',start:'2025-09-22',end:'2026-07-06',wStart:"W39'25",wEnd:"W28'26"}], dwin:null } },
+      { company:'Powernet', site:'KR', product:'WiW1.0-100W', desc:'PD Adapter', stage:'Design in', currentPhase:'On hold',
+        previous:{ phases:[{name:'PoC',start:'2024-12-30',end:'2026-06-15',wStart:"W01'25",wEnd:"W25'26"}], dwin:null },
+        new:{ phases:[{name:'PoC',start:'2024-12-30',end:'2026-08-24',wStart:"W01'25",wEnd:"W35'26"}], dwin:null } }
+    ]
+  };
+
+  /* ---------------------------------------------------------------
+     XLSX EXTRACTION (mirrors DEFAULT_DATA) for uploaded files
+     --------------------------------------------------------------- */
+  function extractFromWorkbook(wb, filename){
+    var sheetName = wb.SheetNames.find(function(n){ return /design|program|timeline|progress/i.test(n); }) || wb.SheetNames[0];
+    var ws = wb.Sheets[sheetName];
+    var rows = XLSX.utils.sheet_to_json(ws, { header: 1, raw: true, defval: null });
+    function g(r,c){ var row = rows[r-1]; if (!row) return null; var v = row[c-1]; return (v===undefined)?null:v; }
+
+    var currentWeekRaw = null;
+    outer:
+    for (var r = 1; r <= rows.length; r++){
+      for (var c = 1; c <= (rows[r-1]||[]).length; c++){
+        var v = g(r,c);
+        if (v && String(v).toLowerCase().indexOf('current week') !== -1){ currentWeekRaw = g(r, c+1); break outer; }
+      }
+    }
+
+    var PHASE_DEFS = [['PoC',8,9],['Prototype',10,11],['EVT',12,13],['DVT',14,15],['PVT',16,17]];
+    function extractPlan(row){
+      var phases = [];
+      PHASE_DEFS.forEach(function(d){
+        var s = parseWeek(g(row,d[1])), e = parseWeek(g(row,d[2]));
+        if (s && e) phases.push({ name: d[0], start: s, end: e, wStart: String(g(row,d[1])), wEnd: String(g(row,d[2])) });
+      });
+      var dwinRaw = g(row, 18);
+      var dwinDate = parseWeek(dwinRaw);
+      return { phases: phases, dwin: dwinDate ? { date: dwinDate, week: String(dwinRaw) } : null };
+    }
+
+    var projects = [];
+    var r2 = 1;
+    while (r2 <= rows.length){
+      if (String(g(r2,7) || '').trim().toLowerCase() === 'previous'){
+        var identity = { company: g(r2,1), site: g(r2,2), product: g(r2,3), desc: g(r2,4), stage: g(r2,5), currentPhase: g(r2,6) };
+        var prevPlan = extractPlan(r2);
+        var newR = r2 + 1;
+        var newPlan = { phases: [], dwin: null };
+        if (String(g(newR,7) || '').trim().toLowerCase() === 'new') newPlan = extractPlan(newR);
+        projects.push(Object.assign({}, identity, { previous: prevPlan, new: newPlan }));
+        r2 = newR + 1;
+      } else r2++;
+    }
+    return {
+      sourceLabel: 'Loaded file · ' + (filename || 'local .xlsx'),
+      currentWeek: currentWeekRaw ? { raw: String(currentWeekRaw), date: parseWeek(currentWeekRaw) } : null,
+      projects: projects
+    };
+  }
+
+  /* ---------------------------------------------------------------
+     RENDERING
+     --------------------------------------------------------------- */
+  var tooltip = document.getElementById('tooltip');
+  function showTip(evt, html){
+    tooltip.innerHTML = html;
+    tooltip.style.display = 'block';
+    var x = evt.clientX + 14, y = evt.clientY + 14;
+    var tw = tooltip.offsetWidth, th = tooltip.offsetHeight;
+    if (x + tw > window.innerWidth - 8) x = evt.clientX - tw - 14;
+    if (y + th > window.innerHeight - 8) y = evt.clientY - th - 14;
+    tooltip.style.left = x + 'px'; tooltip.style.top = y + 'px';
+  }
+  function hideTip(){ tooltip.style.display = 'none'; }
+
+  function computeRows(data){
+    return data.projects.map(function(p){
+      var prevM = lastMilestone(p.previous);
+      var newM = lastMilestone(p.new);
+      var slipWk = (prevM && newM) ? weeksBetween(prevM.date, newM.date) : 0;
+      return { project: p, prevM: prevM, newM: newM, slipWk: slipWk };
+    }).sort(function(a,b){ return b.slipWk - a.slipWk; });
+  }
+
+  function renderKPIs(data, rows){
+    var withSlip = rows.filter(function(r){ return r.prevM && r.newM; });
+    var avgSlip = withSlip.length ? Math.round(withSlip.reduce(function(s,r){ return s+r.slipWk; },0) / withSlip.length) : 0;
+    var worst = rows[0];
+    var onPlanCount = rows.filter(function(r){ return r.slipWk <= 0; }).length;
+
+    var el = document.getElementById('kpi-row');
+    el.innerHTML =
+      '<div class="kpi panel warn"><div class="label">Most Delayed Project</div><div class="value">+' + worst.slipWk + '<span class="unit">weeks</span></div>' +
+      '<div class="sub2"><b>' + worst.project.company.trim() + '</b> &middot; ' + worst.project.desc + '</div></div>' +
+      '<div class="kpi panel warn"><div class="label">Average Slip (' + rows.length + ' projects)</div><div class="value">+' + avgSlip + '<span class="unit">weeks</span></div>' +
+      '<div class="sub2">vs. previous plan</div></div>' +
+      '<div class="kpi panel good"><div class="label">On Plan (no slip)</div><div class="value">' + onPlanCount + '<span class="unit">/ ' + rows.length + '</span></div>' +
+      '<div class="sub2">unchanged since previous plan</div></div>';
+  }
+
+  function renderGantt(data, rows){
+    var rowGap = 62, rowH = 20;
+    var padT = 30, padB = 30;
+    var svgH = padT + rows.length * rowGap + padB;
+    var svg = document.getElementById('gantt-chart');
+    svg.setAttribute('viewBox', '0 0 1000 ' + svgH);
+    svg.style.height = svgH + 'px';
+    document.getElementById('gantt-labels').style.setProperty('--row-gap', rowGap + 'px');
+
+    var W = 1000, padL = 6, padR = 10;
+    var chartW = W - padL - padR;
+
+    var allDates = [];
+    rows.forEach(function(r){
+      [r.project.previous, r.project.new].forEach(function(plan){
+        plan.phases.forEach(function(ph){ allDates.push(ph.start); allDates.push(ph.end); });
+        if (plan.dwin) allDates.push(plan.dwin.date);
+      });
+    });
+    allDates.sort();
+    var minStart = allDates[0], maxEnd = allDates[allDates.length-1];
+    var domainStart = addDays(minStart, -20);
+    var domainEnd = addDays(maxEnd, 20);
+    var totalDays = daysBetween(domainStart, domainEnd);
+    function x(iso){ return padL + (daysBetween(domainStart, iso) / totalDays) * chartW; }
+
+    var parts = [];
+    var qNames = ['Q1','Q2','Q3','Q4'];
+    var d = new Date(domainStart + 'T00:00:00');
+    d.setUTCDate(1);
+    var monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    var mi = 0;
+    while (d.toISOString().slice(0,10) <= domainEnd){
+      var iso = d.toISOString().slice(0,10);
+      if (iso >= domainStart){
+        var gx = x(iso);
+        var isQuarter = d.getUTCMonth() % 3 === 0;
+        parts.push('<line x1="'+gx+'" y1="'+(padT-6)+'" x2="'+gx+'" y2="'+(svgH-padB+4)+'" stroke="'+(isQuarter?'var(--grid-strong)':'var(--grid)')+'" stroke-width="1"/>');
+        if (isQuarter){
+          var lbl = monthNames[d.getUTCMonth()] + " '" + String(d.getUTCFullYear()).slice(2);
+          parts.push('<text x="'+gx+'" y="'+(svgH-padB+16)+'" text-anchor="start" class="axis-label">'+lbl+'</text>');
+        }
+      }
+      d.setUTCMonth(d.getUTCMonth()+1);
+      mi++;
+    }
+    parts.push('<line x1="'+padL+'" y1="'+(svgH-padB)+'" x2="'+(padL+chartW)+'" y2="'+(svgH-padB)+'" stroke="var(--baseline)" stroke-width="1"/>');
+
+    var todayIso = data.currentWeek && data.currentWeek.date;
+    if (todayIso && todayIso >= domainStart && todayIso <= domainEnd){
+      var tx = x(todayIso);
+      parts.push('<line x1="'+tx+'" y1="'+(padT-10)+'" x2="'+tx+'" y2="'+(svgH-padB)+'" stroke="var(--today)" stroke-width="1.5" stroke-dasharray="3,3"/>');
+      parts.push('<text x="'+tx+'" y="'+(padT-14)+'" text-anchor="middle" class="today-label">Wk ' + (data.currentWeek.raw||'') + '</text>');
+    }
+
+    rows.forEach(function(r, ri){
+      var y0 = padT + ri*rowGap + (rowGap-rowH)/2;
+      var prevPlan = r.project.previous, newPlan = r.project.new;
+
+      // ghost = previous plan envelope
+      var pStart = firstStart(prevPlan), pEnd = r.prevM ? r.prevM.date : null;
+      if (pStart && pEnd){
+        var gx0 = x(pStart), gx1 = x(pEnd);
+        var gTip = 'Previous plan &middot; ' + r.project.company.trim() + '<br>' + fmtDate(pStart) + ' &ndash; ' + fmtDate(pEnd) +
+          (r.prevM.isDwin ? ' (D-Win ' + r.prevM.week + ')' : ' (' + r.prevM.week + ')');
+        parts.push('<rect class="hoverseg" data-tip="'+gTip+'" x="'+gx0+'" y="'+(y0-4)+'" width="'+Math.max(gx1-gx0,1)+'" height="'+(rowH+8)+'" rx="5" fill="transparent" stroke="var(--ghost-stroke)" stroke-width="1.3" stroke-dasharray="3,2"/>');
+      }
+
+      // solid = new plan, segmented
+      newPlan.phases.forEach(function(ph){
+        var x0 = x(ph.start), x1 = x(ph.end);
+        var w = Math.max(x1-x0, 1);
+        var color = phaseColor(ph.name);
+        var tip = ph.name + ' &middot; ' + r.project.company.trim() + '<br>' + ph.wStart + ' &rarr; ' + ph.wEnd +
+          ' (' + fmtDate(ph.start) + ' &ndash; ' + fmtDate(ph.end) + ')<br>' + weeksBetween(ph.start, ph.end) + ' weeks';
+        parts.push('<rect class="hoverseg" data-tip="'+tip+'" x="'+x0+'" y="'+y0+'" width="'+w+'" height="'+rowH+'" fill="'+color+'" stroke="var(--seg-stroke)" stroke-width="1" rx="2"/>');
+        if (w > 34){
+          var cx = x0 + w/2;
+          var chipW = Math.min(w-4, ph.name.length*5.8+10);
+          parts.push('<rect x="'+(cx-chipW/2)+'" y="'+(y0+rowH/2-8)+'" width="'+chipW+'" height="16" rx="3" fill="rgba(255,255,255,0.88)"/>');
+          parts.push('<text x="'+cx+'" y="'+(y0+rowH/2+3.5)+'" text-anchor="middle" class="seg-chip-text">'+ph.name+'</text>');
+        }
+      });
+
+      // D-Win milestone (new plan only — previous D-Win is in the ghost envelope/tooltip/table)
+      if (newPlan.dwin){
+        var mx = x(newPlan.dwin.date), my = y0 + rowH/2, s = 7;
+        var mTip = 'D-Win &middot; ' + r.project.company.trim() + '<br>' + newPlan.dwin.week + ' (' + fmtDate(newPlan.dwin.date) + ')';
+        parts.push('<path class="hoverseg" data-tip="'+mTip+'" d="M '+mx+' '+(my-s)+' L '+(mx+s)+' '+my+' L '+mx+' '+(my+s)+' L '+(mx-s)+' '+my+' Z" fill="var(--milestone)" stroke="#fff" stroke-width="1.3"/>');
+      }
+    });
+
+    svg.innerHTML = parts.join('');
+    svg.querySelectorAll('.hoverseg').forEach(function(node){
+      node.addEventListener('mousemove', function(e){ showTip(e, '<div class="tt-title">'+node.getAttribute('data-tip')+'</div>'); });
+      node.addEventListener('mouseleave', hideTip);
+    });
+
+    var labelsEl = document.getElementById('gantt-labels');
+    labelsEl.innerHTML = rows.map(function(r){
+      var p = r.project;
+      var slipBadge = r.slipWk > 0 ? '<span class="slip-badge up">+'+r.slipWk+' wk</span>' : '<span class="slip-badge flat">on plan</span>';
+      var phaseColorHex = phaseColor((p.new.phases.length ? p.new.phases[p.new.phases.length-1].name : (p.new.dwin?'D-Win':'PoC')));
+      return '<div class="row-label"><div class="co">'+p.company.trim()+' &middot; '+ (p.site||'') +'</div>'+
+        '<div class="prod">'+p.product+' — '+p.desc+'</div>'+
+        '<div class="badges"><span class="phase-badge" style="background:'+phaseColorHex+'">'+p.currentPhase+'</span>'+slipBadge+'</div></div>';
+    }).join('');
+
+    var legend = document.getElementById('gantt-legend');
+    var html = PHASE_ORDER.map(function(n){
+      return '<span class="legend-item"><span class="swatch" style="background:'+phaseColor(n)+'"></span>'+n+'</span>';
+    }).join('');
+    html += '<span class="legend-sep"></span><span class="legend-item"><span class="swatch diamond" style="background:var(--milestone)"></span>D-Win (new)</span>';
+    html += '<span class="legend-item"><span class="swatch ghost"></span>Previous plan</span>';
+    html += '<span class="legend-sep"></span><span class="legend-item" style="color:var(--today);">&#9473;&#9473; Current week</span>';
+    legend.innerHTML = html;
+  }
+
+  function renderTable(rows){
+    var body = rows.map(function(r){
+      var p = r.project;
+      var slipBadge = r.slipWk > 0 ? '<span class="slip-badge up">+'+r.slipWk+' wk</span>' : '<span class="slip-badge flat">on plan</span>';
+      var prevTxt = r.prevM ? (r.prevM.week + (r.prevM.isDwin ? ' (D-Win)' : '')) : '&mdash;';
+      var newTxt = r.newM ? (r.newM.week + (r.newM.isDwin ? ' (D-Win)' : '')) : '&mdash;';
+      return '<tr><td class="name">'+p.company.trim()+' <span class="sub">'+p.product+' — '+p.desc+'</span></td>'+
+        '<td>'+p.currentPhase+'</td><td>'+prevTxt+'</td><td>'+newTxt+'</td><td class="num">'+slipBadge+'</td></tr>';
+    }).join('');
+    document.querySelector('#detail-table tbody').innerHTML = body;
+  }
+
+  function renderAll(data){
+    document.getElementById('data-source-label').innerHTML = data.projects.length + ' projects &middot; as of <b>week ' + (data.currentWeek ? data.currentWeek.raw : '—') + '</b> &middot; ' + (data.sourceLabel || '');
+    var rows = computeRows(data);
+    renderKPIs(data, rows);
+    renderGantt(data, rows);
+    renderTable(rows);
+  }
+
+  renderAll(DEFAULT_DATA);
+
+  /* ---------------------------------------------------------------
+     FILE UPLOAD
+     --------------------------------------------------------------- */
+  var uploadBtn = document.getElementById('upload-btn');
+  var uploadInput = document.getElementById('upload-input');
+  var fileStatus = document.getElementById('file-status');
+  uploadBtn.addEventListener('click', function(){ uploadInput.click(); });
+  uploadInput.addEventListener('change', function(e){
+    var file = e.target.files && e.target.files[0];
+    if (!file) return;
+    fileStatus.textContent = 'Loading ' + file.name + '…';
+    var reader = new FileReader();
+    reader.onload = function(evt){
+      try {
+        var wb = XLSX.read(new Uint8Array(evt.target.result), { type: 'array' });
+        var data = extractFromWorkbook(wb, file.name);
+        if (!data.projects.length) throw new Error('No projects found');
+        renderAll(data);
+        fileStatus.textContent = 'Loaded: ' + file.name;
+      } catch (err){
+        console.error(err);
+        fileStatus.textContent = 'Could not read "' + file.name + '" — check it matches the template layout.';
+      }
+    };
+    reader.onerror = function(){ fileStatus.textContent = 'Error reading file.'; };
+    reader.readAsArrayBuffer(file);
+  });
+})();
+</script>
