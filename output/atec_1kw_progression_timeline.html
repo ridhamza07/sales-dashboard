@@ -1,0 +1,433 @@
+<title>ATEC 1kW Progression Timeline</title>
+<style>
+  :root {
+    color-scheme: light;
+    --surface-1:      #ffffff;
+    --surface-2:      #f2f2ef;
+    --page:           #ffffff;
+    --text-primary:   #0b0b0b;
+    --text-secondary: #52514e;
+    --text-muted:     #7a7972;
+    --grid:           #e7e6e0;
+    --grid-strong:    #d8d7cf;
+    --baseline:       #c3c2b7;
+    --border:         rgba(11,11,11,0.14);
+    --seg-stroke:     rgba(11,11,11,0.12);
+    --milestone: #0f9c6c;
+    --issue:     #d33231;
+    --coord:     #1f68c4;
+    --gap-c:     #9a998f;
+    --today:     #52514e;
+    --milestone-bg: #e7f6f0;
+    --issue-bg:     #fbe9e8;
+    --coord-bg:     #e8f0fb;
+  }
+  * { box-sizing: border-box; }
+  body {
+    background: var(--page); color: var(--text-primary);
+    font: 13px/1.4 system-ui, -apple-system, "Segoe UI", sans-serif;
+    padding: 16px;
+  }
+  .wrap { max-width: 1220px; margin: 0 auto; }
+
+  header { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 14px; flex-wrap: wrap; }
+  header h1 { font-size: 17px; font-weight: 700; margin: 0; }
+  header .sub { color: var(--text-secondary); font-size: 11.5px; margin-top: 3px; }
+  header .sub b { color: var(--text-primary); font-weight: 600; }
+  .gen-label { font-size: 10.5px; color: var(--text-muted); white-space: nowrap; margin-top: 3px; }
+
+  .panel { background: var(--surface-1); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; }
+  .panel h2 { font-size: 11.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: var(--text-secondary); margin: 0 0 10px; }
+
+  .kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 10px; }
+  .kpi .label { font-size: 11px; color: var(--text-secondary); margin-bottom: 4px; }
+  .kpi .value { font-size: 19px; font-weight: 700; letter-spacing: -0.01em; }
+  .kpi .value .unit { font-size: 11px; font-weight: 600; color: var(--text-muted); margin-left: 3px; }
+  .kpi .sub2 { font-size: 10.5px; margin-top: 4px; color: var(--text-secondary); line-height: 1.35; }
+  .kpi.status .value { font-size: 12.5px; font-weight: 700; color: var(--milestone); }
+
+  .timeline-panel { margin-bottom: 10px; }
+  .timeline-svg { width: 100%; overflow: visible; display: block; }
+  .axis-label { font-size: 10px; fill: var(--text-muted); }
+  .week-label { font-size: 8.5px; fill: var(--text-muted); font-weight: 600; }
+  .headline-label { font-size: 10px; font-weight: 600; fill: var(--text-primary); }
+  .gap-label { font-size: 9px; fill: var(--gap-c); font-style: italic; }
+  .today-label { font-size: 9.5px; font-weight: 700; fill: var(--today); }
+
+  .legend { display: flex; flex-wrap: wrap; gap: 9px 16px; margin-top: 8px; align-items: center; }
+  .legend-item { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--text-secondary); }
+  .dot { width: 9px; height: 9px; border-radius: 50%; flex: none; box-shadow: inset 0 0 0 1px var(--seg-stroke); }
+  .dot.gapdot { background: none !important; border: 1.5px dashed var(--gap-c); box-shadow: none; }
+  .legend-sep { width: 1px; height: 12px; background: var(--baseline); }
+
+  .cards { display: flex; flex-direction: column; gap: 8px; }
+  .card { display: flex; gap: 10px; border: 1px solid var(--border); border-radius: 8px; padding: 9px 12px; }
+  .card.gap { border-style: dashed; background: var(--surface-2); }
+  .card .rail { flex: none; width: 82px; padding-top: 1px; }
+  .card .rail .wk { font-size: 12px; font-weight: 700; color: var(--text-primary); }
+  .card .rail .dt { font-size: 10px; color: var(--text-muted); margin-top: 1px; }
+  .card .badge { display: inline-block; font-size: 9.5px; font-weight: 700; padding: 1.5px 7px; border-radius: 9px; margin-top: 5px; }
+  .card.milestone .badge { background: var(--milestone-bg); color: var(--milestone); }
+  .card.issue .badge { background: var(--issue-bg); color: var(--issue); }
+  .card.coord .badge { background: var(--coord-bg); color: var(--coord); }
+  .card .body { flex: 1; min-width: 0; }
+  .card .headline { font-size: 12.5px; font-weight: 700; color: var(--text-primary); margin-bottom: 4px; }
+  .card ul { margin: 0; padding-left: 16px; }
+  .card li { font-size: 11.5px; color: var(--text-secondary); margin-bottom: 2px; }
+  .card .subhead { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .03em; color: var(--text-muted); margin: 6px 0 2px; }
+  .card .subhead:first-child { margin-top: 0; }
+  .card.gap .headline { color: var(--gap-c); font-style: italic; font-weight: 600; }
+
+  footer { margin-top: 12px; font-size: 10.5px; color: var(--text-muted); }
+
+  #tooltip {
+    position: fixed; pointer-events: none; z-index: 50; display: none;
+    background: var(--surface-1); border: 1px solid var(--border); border-radius: 6px;
+    padding: 7px 10px; font-size: 11px; box-shadow: 0 4px 14px rgba(0,0,0,.15);
+    color: var(--text-primary); max-width: 280px;
+  }
+  #tooltip .tt-title { font-weight: 700; margin-bottom: 3px; }
+  #tooltip ul { margin: 0; padding-left: 14px; }
+  #tooltip li { color: var(--text-secondary); margin-bottom: 2px; }
+
+  @media (max-width: 760px) { .kpi-row { grid-template-columns: 1fr 1fr; } .card { flex-direction: column; } .card .rail { width: auto; display: flex; gap: 8px; align-items: baseline; } }
+</style>
+
+<div class="wrap">
+  <header>
+    <div>
+      <h1>ATEC 1kW — Project Progression &amp; Key Events</h1>
+      <div class="sub">Teamwise <b>·</b> ATEC 1kW (Heart, Sri) <b>·</b> weekly engineering status log, <b>W21'26 &ndash; W35'26</b> (18 May &ndash; 24 Aug 2026)</div>
+    </div>
+    <div class="gen-label" id="gen-label"></div>
+  </header>
+
+  <div class="kpi-row" id="kpi-row"></div>
+
+  <div class="panel timeline-panel">
+    <h2>Event Timeline</h2>
+    <svg class="timeline-svg" id="timeline-svg" viewBox="0 0 1180 230"></svg>
+    <div class="legend" id="timeline-legend"></div>
+  </div>
+
+  <div class="panel">
+    <h2>Weekly Report Detail</h2>
+    <div class="cards" id="cards"></div>
+  </div>
+
+  <footer>Source: weekly ATEC 1kW engineering status log. Headlines are condensed summaries of each week's bullet points &mdash; full original text is shown in each card and on timeline hover. Weeks with no filed report (W28, W32) are shown as gaps.</footer>
+</div>
+
+<div id="tooltip"></div>
+
+<script>
+(function(){
+  "use strict";
+
+  function fmtDate(iso){
+    var d = new Date(iso+'T00:00:00');
+    return d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+  }
+  function daysBetween(a, b){
+    return Math.round((new Date(b+'T00:00:00') - new Date(a+'T00:00:00')) / 86400000);
+  }
+  function isoWeekToDate(year, week){
+    var jan4 = new Date(Date.UTC(year, 0, 4));
+    var dow = jan4.getUTCDay() || 7;
+    var monday = new Date(jan4);
+    monday.setUTCDate(jan4.getUTCDate() - dow + 1 + (week-1)*7);
+    return monday.toISOString().slice(0,10);
+  }
+
+  var TODAY = '2026-09-02';
+  var CAT = {
+    milestone: { color: 'var(--milestone)', label: 'Milestone' },
+    issue:     { color: 'var(--issue)',     label: 'Issue found' },
+    coord:     { color: 'var(--coord)',     label: 'Coordination / commitment' }
+  };
+
+  /* ---------------------------------------------------------------
+     DATA — condensed from ATEC_1KW_PROGRESSION.xlsx weekly status log
+     --------------------------------------------------------------- */
+  var EVENTS = [
+    { week: 21, category: 'issue',
+      headline: 'Root-caused ATtiny SR damage',
+      bullets: [
+        "800W is agreed by customer in this moment but still need implement to 1kW",
+        "The Issue of phase in SR function cause the abnormal behavior is the high voltage (12V) of SR Enable (LLD) cause ATTiny202 damaged. The logic default is active high in PA7 and transfers to low, and Q600 turns on when output current is higher than 1A. However, the 12V will damage the ATtiny when PA7 changes from high to low.",
+        "After connection with SR, the output voltage is normal. However, it is operated in burst mode during 3A load condition. We need to dig out the root cause.",
+        "Next Action: Replace the ATtiny with the STM MCU used by ATEC, and complete 1kW validation."
+      ] },
+    { week: 22, category: 'issue',
+      headline: 'Same issue — no new update',
+      bullets: [
+        "800W is agreed by customer in this moment but still need implement to 1kW",
+        "The Issue of phase in SR function cause the abnormal behavior is the high voltage (12V) of SR Enable (LLD) cause ATTiny202 damaged. Same root cause as previous week, still under investigation.",
+        "After connection with SR, the output voltage is normal. However, it is operated in burst mode during 3A load condition. We need to dig out the root cause.",
+        "Next Action: Replace the ATtiny with the STM MCU used by ATEC, and complete 1kW validation."
+      ] },
+    { week: 23, category: 'milestone',
+      headline: 'MCU swapped: ATtiny → STM32',
+      bullets: [
+        "800W is agreed by customer in this moment but still need implement to 1kW",
+        "After connection with SR, the output voltage is normal. However, it is operated in burst mode during 3A load condition. We need to dig out the root cause.",
+        "The secondary-side Attiny MCU has been replaced with the STM32L412CBUX as required by ATEC.",
+        "Next Action: Replace the ATtiny with the STM MCU used by ATEC, and complete 1kW validation."
+      ] },
+    { week: 24, category: 'coord',
+      headline: 'STM32 replacement confirmed',
+      bullets: [
+        "800W is agreed by customer in this moment but still need implement to 1kW",
+        "The secondary-side Attiny MCU has been replaced with the STM32L412CBUX as required by ATEC.",
+        "Next Action: Replace the ATtiny with the STM MCU used by ATEC, and complete 1kW validation."
+      ] },
+    { week: 25, category: 'coord',
+      headline: 'Comms protocol set w/ ATEC',
+      bullets: [
+        "800W is agreed by customer in this moment but still need implement to 1kW",
+        "The secondary-side Attiny MCU has been replaced with the STM32L412CBUX as required by ATEC.",
+        "We are currently working with ATEC to align the communication protocol, including data timing sequences and header definitions.",
+        "The communication settings have been jointly defined with ATEC FW engineer Felix.",
+        "We are currently waiting for ATEC to implement and release the updated firmware for verification.",
+        "Next Action: Keep working with ATEC and complete 1kW validation."
+      ] },
+    { week: 26, category: 'coord',
+      headline: 'ATEC FW engineer visit set',
+      bullets: [
+        "800W is agreed by customer in this moment but still need implement to 1kW",
+        "The secondary-side Attiny MCU has been replaced with the STM32L412CBUX as required by ATEC.",
+        "We are currently working with ATEC to align the communication protocol, including data timing sequences and header definitions.",
+        "ATEC's FW engineer will come to our office next week to work on FW together.",
+        "Next Action: Keep working with ATEC and complete 1kW validation."
+      ] },
+    { week: 27, category: 'milestone',
+      headline: '800W + burn-in test passed',
+      isSplit: true,
+      summary: [
+        "The PFC + LLC system can operate normally up to 800W (limited by the instrument).",
+        "The system has passed a 5-minute burn-in test with stable operation.",
+        "Current configuration uses an external power supply.",
+        "The secondary-side rectification is currently implemented using diodes, and the system performs well under this condition.",
+        "The secondary-side Attiny MCU has been replaced with the STM32L412CBUX as required by ATEC."
+      ],
+      status: [
+        "We are currently working with ATEC to align the communication protocol, including data timing sequences and header definitions.",
+        "The communication settings have been jointly defined with ATEC FW engineer Felix.",
+        "We are currently waiting for ATEC to implement and release the updated firmware for verification.",
+        "On July 6, the ATEC FW engineer will visit our site to perform firmware modifications and conduct system integration testing and verification jointly with our team."
+      ] },
+    { week: 29, category: 'milestone',
+      headline: 'STM32 drives power-on tests',
+      bullets: [
+        "800W is agreed by customer in this moment but still need implement to 1kW",
+        "The secondary-side Attiny MCU has been replaced with the STM32L412CBUX as required by ATEC.",
+        "The STM32 will now be used to replace the Attiny for power-on verification testing.",
+        "Next Action: Keep working with ATEC and complete 1kW validation."
+      ] },
+    { week: 30, category: 'coord',
+      headline: "Samples due to ATEC by 8/15",
+      bullets: [
+        "800W is agreed by customer in this moment but still need implement to 1kW",
+        "The secondary-side Attiny MCU has been replaced with the STM32L412CBUX as required by ATEC.",
+        "ATEC has completed the development and validation of the secondary-side STM32 MCU.",
+        "The STM32 will now be used to replace the Attiny for power-on verification testing.",
+        "We need to provide two working samples (with ST's MCU but without current sharing) to ATEC before 8/15.",
+        "Next Action: Keep working with ATEC and complete 1kW validation."
+      ] },
+    { week: 31, category: 'issue',
+      headline: 'Rev.9B FW stability issue found',
+      bullets: [
+        "800W is agreed by customer in this moment but still need implement to 1kW",
+        "The secondary-side Attiny MCU has been replaced with the STM32L412CBUX as required by ATEC.",
+        "ATEC has completed the development and validation of the secondary-side STM32 MCU.",
+        "The STM32 will now be used to replace the Attiny for power-on verification testing.",
+        "We need to provide two working samples (with ST's MCU but without current sharing) to ATEC before 8/15.",
+        "During the tuning of the ATEC samples, we identified stability issues in the Rev.9B firmware and will change to Rev.11 for further testing.",
+        "No hardware modification for this change.",
+        "Next Action: Keep working with ATEC and complete 1kW validation."
+      ] },
+    { week: 33, category: 'issue',
+      headline: 'Deadline slipped to 8/28; PCBA changed',
+      bullets: [
+        "800W is agreed by customer in this moment but still need implement to 1kW",
+        "The secondary-side Attiny MCU has been replaced with the STM32L412CBUX as required by ATEC.",
+        "ATEC has completed the development and validation of the secondary-side STM32 MCU.",
+        "The STM32 will now be used to replace the Attiny for power-on verification testing.",
+        "We need to provide two working samples (with ST's MCU but without current sharing) to ATEC before 8/28 (slipped from 8/15).",
+        "During the tuning of the ATEC samples, we identified stability issues in the Rev.9B firmware and will change to Rev.11 for further testing.",
+        "Since some of the components were damaged and hard to repair, changed to a new PCBA and adopted Rev.11 for further testing.",
+        "Next Action: Keep working with ATEC and complete 1kW validation."
+      ] },
+    { week: 34, category: 'milestone',
+      headline: 'Rev.11 fix; 800W PFC; MOSFET heat found',
+      bullets: [
+        "We need to provide two working samples (with ST's MCU but without current sharing) to ATEC before 8/28.",
+        "FW changed from Rev.9 to Rev.11 to improve overall system stability; some issues have been resolved.",
+        "PFC Stage: can operate at 800W and the waveform meets expectations, but there is a thermal issue on the high-frequency low-side MOSFET since the PCBA area on the low side is too small.",
+        "LLC side's control signal integration is completed and will start proceeding with power-on in the LLC side.",
+        "Next Action: Keep working with ATEC and complete 1kW validation."
+      ] },
+    { week: 35, category: 'milestone',
+      headline: 'LLC hits 600W; next: full PFC+LLC test',
+      bullets: [
+        "We need to provide two working samples (with ST's MCU but without current sharing) to ATEC before 8/28.",
+        "FW from Rev.9 changed to Rev.11 to improve overall system stability; some issues have been resolved.",
+        "PFC Stage: can operate at 800W and the waveform meets expectations, but there is a thermal issue on the high-frequency low-side MOSFET since the PCBA area on the low side is too small.",
+        "LLC Stage: gain adjustment has significantly improved the stability of the LLC converter, allowing it to operate at up to approximately 600W.",
+        "Once the gain optimization is completed and verified, integrated PFC + LLC system testing will be carried out.",
+        "Next Action: Keep working with ATEC and complete 1kW validation.",
+        "Meeting with ATEC about the provided working sample schedule."
+      ] }
+  ];
+  var GAPS = [
+    { week: 28, note: 'No report filed — likely on-site with ATEC for the Jul 6 firmware integration visit mentioned in the W27 report.' },
+    { week: 32, note: 'No report filed.' }
+  ];
+
+  EVENTS.forEach(function(e){ e.date = isoWeekToDate(2026, e.week); });
+  GAPS.forEach(function(g){ g.date = isoWeekToDate(2026, g.week); });
+
+  var tooltip = document.getElementById('tooltip');
+  function showTip(evt, html){
+    tooltip.innerHTML = html;
+    tooltip.style.display = 'block';
+    var x = evt.clientX + 14, y = evt.clientY + 14;
+    var tw = tooltip.offsetWidth, th = tooltip.offsetHeight;
+    if (x + tw > window.innerWidth - 8) x = evt.clientX - tw - 14;
+    if (y + th > window.innerHeight - 8) y = evt.clientY - th - 14;
+    tooltip.style.left = x + 'px'; tooltip.style.top = y + 'px';
+  }
+  function hideTip(){ tooltip.style.display = 'none'; }
+
+  function renderKPIs(){
+    var totalWeeks = 35 - 21 + 1;
+    var reported = EVENTS.length;
+    var milestones = EVENTS.filter(function(e){ return e.category === 'milestone'; }).length;
+    var issues = EVENTS.filter(function(e){ return e.category === 'issue'; }).length;
+    var latest = EVENTS[EVENTS.length - 1];
+
+    var el = document.getElementById('kpi-row');
+    el.innerHTML =
+      '<div class="kpi panel"><div class="label">Reports Logged</div><div class="value">' + reported + '<span class="unit">/ ' + totalWeeks + ' wks</span></div>' +
+      '<div class="sub2">W21’26 – W35’26</div></div>' +
+      '<div class="kpi panel"><div class="label">Milestones</div><div class="value" style="color:var(--milestone)">' + milestones + '</div>' +
+      '<div class="sub2">key progress events</div></div>' +
+      '<div class="kpi panel"><div class="label">Issues Found</div><div class="value" style="color:var(--issue)">' + issues + '</div>' +
+      '<div class="sub2">root-caused &amp; being fixed</div></div>' +
+      '<div class="kpi panel status"><div class="label">Latest Status (W' + latest.week + '’26)</div><div class="value">' + latest.headline + '</div></div>';
+  }
+
+  function renderTimeline(){
+    var svg = document.getElementById('timeline-svg');
+    var W = 1180, H = 300;
+    var padL = 14, padR = 14, padT = 70, padB = 100;
+    var axisY = H - padB;
+    var chartW = W - padL - padR;
+    svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H);
+    svg.style.height = H + 'px';
+
+    var domainStart = '2026-05-10';
+    var domainEnd = '2026-09-05';
+    var totalDays = daysBetween(domainStart, domainEnd);
+    function x(iso){ return padL + (daysBetween(domainStart, iso) / totalDays) * chartW; }
+
+    var parts = [];
+    var monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    var d = new Date(domainStart + 'T00:00:00');
+    d.setUTCDate(1); d.setUTCMonth(d.getUTCMonth()+1);
+    while (d.toISOString().slice(0,10) <= domainEnd){
+      var iso = d.toISOString().slice(0,10);
+      var gx = x(iso);
+      parts.push('<line x1="'+gx+'" y1="'+(padT-4)+'" x2="'+gx+'" y2="'+(axisY+4)+'" stroke="var(--grid)" stroke-width="1"/>');
+      parts.push('<text x="'+gx+'" y="'+(axisY+18)+'" text-anchor="start" class="axis-label">'+monthNames[d.getUTCMonth()]+" '"+String(d.getUTCFullYear()).slice(2)+'</text>');
+      d.setUTCMonth(d.getUTCMonth()+1);
+    }
+    parts.push('<line x1="'+padL+'" y1="'+axisY+'" x2="'+(padL+chartW)+'" y2="'+axisY+'" stroke="var(--baseline)" stroke-width="1.3"/>');
+
+    // Today marker
+    if (TODAY >= domainStart && TODAY <= domainEnd){
+      var tx = x(TODAY);
+      parts.push('<line x1="'+tx+'" y1="'+(padT-4)+'" x2="'+tx+'" y2="'+(axisY+4)+'" stroke="var(--today)" stroke-width="1.3" stroke-dasharray="2,2"/>');
+      parts.push('<text x="'+tx+'" y="'+(padT-8)+'" text-anchor="middle" class="today-label">Today</text>');
+    }
+
+    // gap ticks
+    GAPS.forEach(function(g){
+      var gx = x(g.date);
+      parts.push('<line x1="'+gx+'" y1="'+(axisY-7)+'" x2="'+gx+'" y2="'+(axisY+7)+'" stroke="var(--gap-c)" stroke-width="1.3" stroke-dasharray="2,2"/>');
+      parts.push('<text x="'+gx+'" y="'+(axisY+31)+'" text-anchor="middle" class="gap-label">no report</text>');
+      parts.push('<text x="'+gx+'" y="'+(axisY-11)+'" text-anchor="middle" class="week-label">W'+g.week+'</text>');
+    });
+
+    // zigzag tiers for event labels
+    var tiers = [-64, -34, 34, 64];
+
+    EVENTS.forEach(function(e, i){
+      var ex = x(e.date);
+      var tier = tiers[i % tiers.length];
+      var above = tier < 0;
+      var labelY = axisY + tier + (above ? 0 : 12);
+      var dotY = axisY;
+      var color = 'var(--' + e.category + ')';
+
+      var tipBullets = e.isSplit ? e.summary.concat(e.status) : e.bullets;
+      var tipHtml = '<div class="tt-title">W'+e.week+"'26 · "+fmtDate(e.date)+' — '+e.headline+'</div><ul>'+
+        tipBullets.slice(0,6).map(function(b){ return '<li>'+b+'</li>'; }).join('')+'</ul>';
+
+      // connector
+      var connY1 = above ? labelY + 4 : labelY - 10;
+      parts.push('<line x1="'+ex+'" y1="'+dotY+'" x2="'+ex+'" y2="'+connY1+'" stroke="var(--seg-stroke)" stroke-width="1"/>');
+      // dot
+      parts.push('<circle class="hoverseg" data-tip=\''+tipHtml.replace(/'/g,"&#39;")+'\' cx="'+ex+'" cy="'+dotY+'" r="5.5" fill="'+color+'" stroke="#fff" stroke-width="1.4"/>');
+      // week tick label right under/over dot
+      parts.push('<text x="'+ex+'" y="'+(above ? dotY+16 : dotY-10)+'" text-anchor="middle" class="week-label">W'+e.week+'</text>');
+      // headline label
+      parts.push('<text x="'+ex+'" y="'+labelY+'" text-anchor="middle" class="headline-label hoverseg" data-tip=\''+tipHtml.replace(/'/g,"&#39;")+'\'>'+e.headline+'</text>');
+    });
+
+    svg.innerHTML = parts.join('');
+    svg.querySelectorAll('.hoverseg').forEach(function(node){
+      node.addEventListener('mousemove', function(e){ showTip(e, node.getAttribute('data-tip')); });
+      node.addEventListener('mouseleave', hideTip);
+    });
+
+    var legend = document.getElementById('timeline-legend');
+    var html = Object.keys(CAT).map(function(k){
+      return '<span class="legend-item"><span class="dot" style="background:'+CAT[k].color+'"></span>'+CAT[k].label+'</span>';
+    }).join('');
+    html += '<span class="legend-sep"></span><span class="legend-item"><span class="dot gapdot"></span>No report filed</span>';
+    html += '<span class="legend-sep"></span><span class="legend-item" style="color:var(--today);">&#9473;&#9473; Today</span>';
+    legend.innerHTML = html;
+  }
+
+  function renderCards(){
+    var items = EVENTS.map(function(e){ return { type: 'event', week: e.week, date: e.date, data: e }; })
+      .concat(GAPS.map(function(g){ return { type: 'gap', week: g.week, date: g.date, data: g }; }))
+      .sort(function(a,b){ return a.week - b.week; });
+
+    var html = items.map(function(it){
+      if (it.type === 'gap'){
+        return '<div class="card gap"><div class="rail"><div class="wk">W'+it.week+'’26</div><div class="dt">'+fmtDate(it.date)+'</div></div>'+
+          '<div class="body"><div class="headline">No report filed</div><div style="font-size:11.5px;color:var(--text-secondary);">'+it.data.note+'</div></div></div>';
+      }
+      var e = it.data;
+      var bodyHtml;
+      if (e.isSplit){
+        bodyHtml = '<div class="subhead">Summary</div><ul>'+e.summary.map(function(b){ return '<li>'+b+'</li>'; }).join('')+'</ul>'+
+          '<div class="subhead">Current Status</div><ul>'+e.status.map(function(b){ return '<li>'+b+'</li>'; }).join('')+'</ul>';
+      } else {
+        bodyHtml = '<ul>'+e.bullets.map(function(b){ return '<li>'+b+'</li>'; }).join('')+'</ul>';
+      }
+      return '<div class="card '+e.category+'"><div class="rail"><div class="wk">W'+e.week+'’26</div><div class="dt">'+fmtDate(e.date)+'</div>'+
+        '<div class="badge">'+CAT[e.category].label+'</div></div>'+
+        '<div class="body"><div class="headline">'+e.headline+'</div>'+bodyHtml+'</div></div>';
+    }).join('');
+    document.getElementById('cards').innerHTML = html;
+  }
+
+  document.getElementById('gen-label').textContent = 'Rendered ' + new Date().toLocaleString();
+  renderKPIs();
+  renderTimeline();
+  renderCards();
+})();
+</script>
