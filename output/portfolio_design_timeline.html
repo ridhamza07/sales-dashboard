@@ -68,11 +68,11 @@
   .gantt-chart-wrap { flex: 1; min-width: 0; }
   .gantt-svg { width: 100%; overflow: visible; display: block; }
 
-  .row-label { height: var(--row-gap, 62px); display: flex; flex-direction: column; justify-content: center; border-top: 1px solid var(--grid); padding: 2px 4px 2px 0; }
+  .row-label { height: var(--row-gap, 62px); display: flex; flex-direction: column; justify-content: flex-start; border-top: 1px solid var(--grid); padding: 9px 4px 2px 0; }
   .row-label:first-child { border-top: none; }
-  .row-label .co { font-size: 12px; font-weight: 700; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .row-label .prod { font-size: 10.5px; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 1px; }
-  .row-label .badges { display: flex; gap: 4px; margin-top: 4px; flex-wrap: wrap; }
+  .row-label .co { font-size: 12px; line-height: 16px; font-weight: 700; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .row-label .prod { font-size: 10.5px; line-height: 14px; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 2px; }
+  .row-label .badges { display: flex; gap: 4px; margin-top: 5px; flex-wrap: wrap; }
   .phase-badge { font-size: 9px; font-weight: 700; padding: 1px 6px; border-radius: 9px; color: #fff; white-space: nowrap; }
   .slip-badge { font-size: 9px; font-weight: 700; padding: 1px 6px; border-radius: 9px; white-space: nowrap; }
   .slip-badge.up { background: var(--up-bg); color: var(--up-text); }
@@ -365,11 +365,17 @@
   function renderGantt(data, rows){
     var rowGap = 62, rowH = 20;
     var padT = 30, padB = 30;
+    // vertical offset (from the top of each row) of the label's 2nd line (product — application) center,
+    // must match the .row-label CSS rhythm: padding-top 9 + .co line-height 16 + .prod margin-top 2 + half of .prod line-height 14
+    var line2CenterOffset = 9 + 16 + 2 + 14/2;
     var svgH = padT + rows.length * rowGap + padB;
     var svg = document.getElementById('gantt-chart');
     svg.setAttribute('viewBox', '0 0 1000 ' + svgH);
     svg.style.height = svgH + 'px';
-    document.getElementById('gantt-labels').style.setProperty('--row-gap', rowGap + 'px');
+    var labelsEl0 = document.getElementById('gantt-labels');
+    labelsEl0.style.setProperty('--row-gap', rowGap + 'px');
+    labelsEl0.style.paddingTop = padT + 'px';
+    labelsEl0.style.paddingBottom = padB + 'px';
 
     var W = 1000, padL = 6, padR = 10;
     var chartW = W - padL - padR;
@@ -418,7 +424,7 @@
     }
 
     rows.forEach(function(r, ri){
-      var y0 = padT + ri*rowGap + (rowGap-rowH)/2;
+      var y0 = padT + ri*rowGap + line2CenterOffset - rowH/2;
       var prevPlan = r.project.previous, newPlan = r.project.new;
 
       // ghost = previous plan envelope
