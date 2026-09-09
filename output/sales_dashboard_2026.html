@@ -160,7 +160,7 @@
   <header>
     <div>
       <h1>Booking &amp; Billing Dashboard — FY2026</h1>
-      <div class="sub" id="data-source-label">Sample data · booking_and_billing_target_2026_v2.xlsx</div>
+      <div class="sub" id="data-source-label">Sample data · booking_and_billing_target_2026_v3.xlsx · customer/prospect names anonymized</div>
     </div>
     <div class="header-right">
       <span class="fx-pill" id="fx-pill">EUR/USD 1.17</span>
@@ -218,7 +218,7 @@
   </div>
 
   <footer>
-    <span>Upload expects the same "2026 cash in" template layout (summary block rows 1-10, "booked:" and "to be booked:" deal lists). Figures in k€ unless noted.</span>
+    <span>Upload expects the same "2026 cash in" template layout (summary block rows 1-10, "booked:" and "to be booked:" deal lists with a "Customer code" column). Customer/prospect names are anonymized to codes for external sharing. Figures in k€ unless noted.</span>
     <span id="generated-label"></span>
   </footer>
 </div>
@@ -245,12 +245,12 @@
      DEFAULT DATA — extracted from booking_and_billing_target_2026_v2.xlsx
      --------------------------------------------------------------- */
   var DEFAULT_DATA = {
-    sourceLabel: 'Sample data · booking_and_billing_target_2026_v2.xlsx',
+    sourceLabel: 'Sample data · booking_and_billing_target_2026_v3.xlsx · customer/prospect names anonymized',
     fxRate: 1.17,
     booking: {
       bookedToDateUSD: 453.648, bookedToDateEUR: 387.73333333333335,
-      toBookUSD: 704.95, toBookEUR: 602.5213675213676,
-      projectedTotalUSD: 1158.598, projectedTotalEUR: 990.2547008547009
+      toBookUSD: 714.95, toBookEUR: 611.0683760683761,
+      projectedTotalUSD: 1168.598, projectedTotalEUR: 998.8017094017094
     },
     billingQuarterly: {
       quarters: ['Q1','Q2','Q3','Q4'],
@@ -265,32 +265,62 @@
       onOrdersToBook: 195.27777777777774
     },
     bookedDeals: [
-      { name:'TeamWise (NRE)', product:'NRE', usd:10, eur:8.547008547008547, billedByQ:[null,null,1.7094017094017095,null], toBill2026ByQ:[null,null,null,6.837606837606837] },
-      { name:'G.Cartier (NRE)', product:'NRE', usd:345.15, eur:295, billedByQ:[88.5,null,88.5,null], toBill2026ByQ:[null,null,null,118] },
-      { name:'Teledyne (GaN)', product:'WiseGaN', usd:12, eur:10.256410256410257, billedByQ:[null,null,10.256410256410257,null], toBill2026ByQ:[null,null,null,null] },
-      { name:'Savoy (Gazelle)', product:'NRE', usd:3.51, eur:3, billedByQ:[null,3,null,null], toBill2026ByQ:[null,null,null,null] },
-      { name:'Digikey (GaN 2025 PO)', product:'WiseGaN', usd:3.978, eur:3.4, billedByQ:[3.4,null,null,null], toBill2026ByQ:[null,null,null,null] },
-      { name:'Alter (tester)', product:'other', usd:62.01, eur:53, billedByQ:[null,null,53,null], toBill2026ByQ:[null,null,null,null] },
-      { name:'Teledyne (GaN EVK)', product:'WiseGaN', usd:17, eur:14.529914529914532, billedByQ:[null,null,null,null], toBill2026ByQ:[null,null,14.529914529914532,null] }
+      { name:'Customer 3 — NRE', product:'NRE', usd:10, eur:8.547008547008547, billedByQ:[null,null,1.7094017094017095,null], toBill2026ByQ:[null,null,null,6.837606837606837] },
+      { name:'Customer 1 — NRE', product:'NRE', usd:345.15, eur:295, billedByQ:[88.5,null,88.5,null], toBill2026ByQ:[null,null,null,118] },
+      { name:'Customer 2 — GaN', product:'WiseGaN', usd:12, eur:10.256410256410257, billedByQ:[null,null,10.256410256410257,null], toBill2026ByQ:[null,null,null,null] },
+      { name:'Customer 1 — Gazelle', product:'NRE', usd:3.51, eur:3, billedByQ:[null,3,null,null], toBill2026ByQ:[null,null,null,null] },
+      { name:'Distributor 1 — GaN 2025 PO', product:'WiseGaN', usd:3.978, eur:3.4, billedByQ:[3.4,null,null,null], toBill2026ByQ:[null,null,null,null] },
+      { name:'Customer 4 — Tester', product:'other', usd:62.01, eur:53, billedByQ:[null,null,53,null], toBill2026ByQ:[null,null,null,null] },
+      { name:'Customer 2 — GaN EVK', product:'WiseGaN', usd:17, eur:14.529914529914532, billedByQ:[null,null,null,null], toBill2026ByQ:[null,null,14.529914529914532,null] }
     ],
     toBeBookedDeals: [
-      { name:'ZoneCharge (NRE)', product:'NRE', usd:26, eur:22.222222222222225, toBill2026:11.111111111111112, toBill2027:null, details:'7 kW PFC integration with Wireless stage' },
-      { name:'EDAC (NRE)', product:'NRE', usd:100, eur:85.47008547008548, toBill2026:34.188034188034194, toBill2027:null, details:'CRPS 3.2 kW' },
-      { name:'Teledyne (GaN MoQ)', product:'WiseGaN', usd:200, eur:170.94017094017096, toBill2026:170.94017094017096, toBill2027:null, details:'MoQ 5k/part' },
-      { name:'eDom (WI73100)', product:'WiseGaN', usd:13.4, eur:11.452991452991453, toBill2026:0, toBill2027:null, details:'73100 order' },
-      { name:'KEC (WI73100)', product:'WiseGaN', usd:3.35, eur:2.8632478632478633, toBill2026:0, toBill2027:null, details:'73100 order' },
-      { name:'Teledyne (NRE packg)', product:'NRE', usd:240, eur:205.12820512820514, toBill2026:143.5897435897436, toBill2027:null, details:'7 mOhm packaging. NRE. Copper clip' },
-      { name:'Digikey (WI73100)', product:'WiseGaN', usd:2.25, eur:1.9230769230769231, toBill2026:0, toBill2027:null, details:'73100 order' },
-      { name:'G.Cartier (WiW MoQ)', product:'WiW1.3', usd:40.95, eur:35, toBill2026:17.5, toBill2027:null, details:'first order for parts' },
-      { name:'TVS Motor (NRE)', product:'NRE', usd:40, eur:34.18803418803419, toBill2026:17.094017094017094, toBill2027:null, details:'NRE for off board charger' },
-      { name:'Teamwise (WiW MoQ)', product:'WiW1.1', usd:9, eur:7.6923076923076925, toBill2026:0, toBill2027:null, details:'MoQ order' },
-      { name:'Onsemi (NRE)', product:'NRE', usd:30, eur:25.641025641025642, toBill2026:12.820512820512821, toBill2027:null, details:'7 kW - 10 protos + NRE (off board charging - eBikes)' }
+      { name:'Prospect 1 — NRE', product:'NRE', usd:26, eur:22.222222222222225, toBill2026:11.111111111111112, toBill2027:11.111111111111112, details:'7 kW PFC integration with Wireless stage' },
+      { name:'Prospect 2 — NRE', product:'NRE', usd:110, eur:94.01709401709402, toBill2026:51.282051282051285, toBill2027:42.73504273504274, details:'CRPS 3.2 kW' },
+      { name:'Customer 2 — GaN MoQ', product:'WiseGaN', usd:200, eur:170.94017094017096, toBill2026:0, toBill2027:170.94017094017096, details:'MoQ 5k/part' },
+      { name:'Distributor 2 — WI73100', product:'WiseGaN', usd:13.4, eur:11.452991452991453, toBill2026:11.452991452991453, toBill2027:0, details:'73100 order' },
+      { name:'Customer 5 — WI73100', product:'WiseGaN', usd:3.35, eur:2.8632478632478633, toBill2026:2.8632478632478633, toBill2027:0, details:'73100 order' },
+      { name:'Customer 2 — NRE packg', product:'NRE', usd:240, eur:205.12820512820514, toBill2026:61.53846153846154, toBill2027:143.5897435897436, details:'7 mOhm packaging. NRE. Copper clip' },
+      { name:'Distributor 1 — WI73100', product:'WiseGaN', usd:2.25, eur:1.9230769230769231, toBill2026:1.9230769230769231, toBill2027:0, details:'73100 order' },
+      { name:'Customer 1 — WiW MoQ', product:'WiW1.3', usd:40.95, eur:35, toBill2026:17.5, toBill2027:17.5, details:'first order for parts' },
+      { name:'Prospect 3 — NRE', product:'NRE', usd:40, eur:34.18803418803419, toBill2026:17.094017094017094, toBill2027:17.094017094017094, details:'NRE for off board charger' },
+      { name:'Customer 3 — WiW MoQ', product:'WiW1.1', usd:9, eur:7.6923076923076925, toBill2026:7.6923076923076925, toBill2027:0, details:'MoQ order' },
+      { name:'Prospect 4 — NRE', product:'NRE', usd:30, eur:25.641025641025642, toBill2026:12.820512820512821, toBill2027:12.820512820512821, details:'7 kW - 10 protos + NRE (off board charging - eBikes)' }
     ]
   };
 
   /* ---------------------------------------------------------------
      XLSX EXTRACTION (mirrors DEFAULT_DATA structure) for uploaded files
      --------------------------------------------------------------- */
+  /* Customer/prospect names must never reach the rendered dashboard: the
+     "Customer code" column is the anonymized identity, and any raw name
+     that slips into that column (data-entry mistake in the source file)
+     is remapped to a generated code instead of being displayed. */
+  var anonCodeMap = {};
+  var anonCodeSeq = { Customer: 0, Prospect: 0, Distributor: 0 };
+  function normalizeCode(raw){
+    var s = String(raw || '').trim();
+    var m = /^(customer|prospect|distributor)\s*0*(\d+)$/i.exec(s);
+    if (m){
+      var bucket = m[1].charAt(0).toUpperCase() + m[1].slice(1).toLowerCase();
+      var n = parseInt(m[2], 10);
+      if (n > anonCodeSeq[bucket]) anonCodeSeq[bucket] = n;
+      return bucket + ' ' + n;
+    }
+    if (!s) return 'Customer ' + (++anonCodeSeq.Customer);
+    if (!anonCodeMap[s]){
+      anonCodeSeq.Customer += 1;
+      anonCodeMap[s] = 'Customer ' + anonCodeSeq.Customer;
+    }
+    return anonCodeMap[s];
+  }
+  function dealTag(internalName, product){
+    var m = /\(([^)]+)\)\s*$/.exec(String(internalName || ''));
+    return m ? m[1] : (product || 'Deal');
+  }
+  function anonDealName(internalName, code, product){
+    return normalizeCode(code) + ' — ' + dealTag(internalName, product);
+  }
+
   function extractFromWorkbook(wb, filename){
     var sheetName = wb.SheetNames.find(function(n){ return /cash\s*in/i.test(n); }) || wb.SheetNames[0];
     var ws = wb.Sheets[sheetName];
@@ -299,21 +329,24 @@
     function num(v){ return (typeof v === 'number') ? v : (v === null || v === '' ? null : Number(v)); }
     function row4(r, cStart){ return [num(g(r,cStart)), num(g(r,cStart+1)), num(g(r,cStart+2)), num(g(r,cStart+3))]; }
 
+    anonCodeMap = {};
+    anonCodeSeq = { Customer: 0, Prospect: 0, Distributor: 0 };
+
     var data = {
-      sourceLabel: 'Loaded file · ' + (filename || 'local .xlsx'),
+      sourceLabel: 'Loaded file · ' + (filename || 'local .xlsx') + ' · customer/prospect names anonymized',
       fxRate: num(g(1,2)) || 1.17,
       booking: {
-        bookedToDateUSD: num(g(3,3)), bookedToDateEUR: num(g(3,4)),
-        toBookUSD: num(g(5,3)), toBookEUR: num(g(5,4)),
-        projectedTotalUSD: num(g(7,3)), projectedTotalEUR: num(g(7,4))
+        bookedToDateUSD: num(g(3,8)), bookedToDateEUR: num(g(3,9)),
+        toBookUSD: num(g(5,8)), toBookEUR: num(g(5,9)),
+        projectedTotalUSD: num(g(7,8)), projectedTotalEUR: num(g(7,9))
       },
       billingQuarterly: {
         quarters: ['Q1','Q2','Q3','Q4'],
-        billedToDate: row4(3,7), bookedToBill: row4(4,7),
-        projectedOnOrders: row4(5,7), totalProjected: row4(6,7)
+        billedToDate: row4(3,12), bookedToBill: row4(4,12),
+        projectedOnOrders: row4(5,12), totalProjected: row4(6,12)
       },
       billingTotals2026: {
-        billedToDate: num(g(8,10)), bookedToBill: num(g(9,10)), onOrdersToBook: num(g(10,10))
+        billedToDate: num(g(8,15)), bookedToBill: num(g(9,15)), onOrdersToBook: num(g(10,15))
       },
       bookedDeals: [], toBeBookedDeals: []
     };
@@ -325,27 +358,35 @@
       }
       return -1;
     }
+    // Deal columns: 1 internal name (never displayed), 2 customer code,
+    // 3 country, 4 description, 5 project, 6 product, 7 usd, 8 eur,
+    // 9-12 billed by quarter, 13-16 to-bill-2026 by quarter.
     var bookedHdr = findHeaderRow('booked:');
     if (bookedHdr > 0){
       var r = bookedHdr + 1;
       while (g(r,1)){
+        var product = g(r,6) || 'other';
         data.bookedDeals.push({
-          name: String(g(r,1)), product: g(r,2) || 'other',
-          usd: num(g(r,3)), eur: num(g(r,4)),
-          billedByQ: row4(r,5), toBill2026ByQ: row4(r,9)
+          name: anonDealName(g(r,1), g(r,2), product), product: product,
+          usd: num(g(r,7)), eur: num(g(r,8)),
+          billedByQ: row4(r,9), toBill2026ByQ: row4(r,13)
         });
         r++;
       }
     }
+    // Pipeline columns: 1 internal name, 2 customer code, 3 country,
+    // 4 description, 5 order details, 6 status, 7 product, 8 usd, 9 eur,
+    // 10-13 to-bill-2026 by quarter, 14 to-bill-2027 (lump sum).
     var tobookHdr = findHeaderRow('to be booked:');
     if (tobookHdr > 0){
       var r2 = tobookHdr + 1;
       while (g(r2,1)){
+        var product2 = g(r2,7) || 'other';
         data.toBeBookedDeals.push({
-          name: String(g(r2,1)), product: g(r2,2) || 'other',
-          usd: num(g(r2,3)), eur: num(g(r2,4)),
-          toBill2026: num(g(r2,9)), toBill2027: num(g(r2,21)),
-          details: g(r2,10) || ''
+          name: anonDealName(g(r2,1), g(r2,2), product2), product: product2,
+          usd: num(g(r2,8)), eur: num(g(r2,9)),
+          toBill2026: sum(row4(r2,10)), toBill2027: num(g(r2,14)),
+          details: g(r2,5) || ''
         });
         r2++;
       }
@@ -586,7 +627,7 @@
         '<td><span class="tag" style="background:'+(pcolor[x.product]||'#888')+'">'+x.product+'</span></td>'+
         '<td class="num val">'+fmt(x.eur,1)+'</td>'+
         '<td class="num">'+fmt(x.toBill2026,1)+'</td>'+
-        '<td class="num">'+(x.toBill2027 ? fmt(x.toBill2027,1) : '—')+'</td></tr>';
+        '<td class="num">'+(x.toBill2027 != null ? fmt(x.toBill2027,1) : '—')+'</td></tr>';
     }).join('');
     document.querySelector('#pipeline-table tfoot').innerHTML =
       '<tr><td colspan="2">Total ('+pipeline.length+' deals)</td><td class="num">'+fmt(sum(pipeline.map(function(x){return x.eur;})),1)+'</td>'+
